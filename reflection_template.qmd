@@ -1,6 +1,6 @@
 ---
 title: "STAT 331 Portfolio"
-author: "Your Name Goes Here"
+author: "Aakash Kapadia"
 format: 
   html: 
     self-contained: true
@@ -11,7 +11,9 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an __.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an A-.
+
+While I believe I've earned an A grade in revisions, and in peer collaboration, I believe I need to be better about extending my thinking. I also think that because there are still a lot of sections I haven't demonstrated mastery of yet, I need to continue to grow in order to earn an A.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -20,47 +22,88 @@ execute:
 **WD-1: I can import data from a *variety* of formats (e.g., csv, xlsx, txt, etc.).**
 
 -   `csv`
+-   Lab 3 Q2
 
 ```{r}
 #| label: wd-1-csv
-
+teacher_eval <-read_csv(here("data", "teacher_evals.csv"))
 ```
 
 -   `xlsx`
+-   PA 2 Q1
 
 ```{r}
 #| label: wd-1-xlsx
-
+military <- read_xlsx(here::here("data", 
+                                 "gov_spending_per_capita.xlsx"), 
+                      sheet = "Share of Govt. spending", 
+                      skip  = 6, 
+                      n_max = 190)
 ```
 
 -   `txt`
+-   PA 2 Q 2
 
 ```{r}
 #| label: wd-1-txt
-
+message_data <- read_csv("https://github.com/earobinson95/stat331-calpoly/raw/master/practice-activities/data/scrambled_message.txt")
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
 
+Lab 3 Q5
+
 ```{r}
 #| label: wd-2
-
+teacher_evals_clean<- teacher_eval |>
+  rename(sex=gender) |>
+  filter(no_participants>10) |>
+  mutate(across(c(teacher_id, question_no, course_id))) |>
+  select(course_id,
+         teacher_id,
+         question_no,
+         no_participants,
+         resp_share,
+         SET_score_avg,
+         percent_failed_cur,
+         academic_degree,
+         seniority,
+         sex)
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
 
 -   numeric
+-   Lab 3 Q3
 
 ```{r}
 #| label: wd-3-numeric
-
+teacher_evals_clean<- teacher_eval |>
+  rename(sex=gender) |>
+  filter(no_participants>10) |>
+  mutate(across(c(teacher_id, question_no, course_id))) |>
+  select(course_id,
+         teacher_id,
+         question_no,
+         no_participants,
+         resp_share,
+         SET_score_avg,
+         percent_failed_cur,
+         academic_degree,
+         seniority,
+         sex)
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
+-   Lab 5
 
 ```{r}
 #| label: wd-3-string
-
+final_database<-inner_join(drivers_license,
+                          person_final_filter,
+                          by=c("id"="license_id")) |>
+  filter(str_detect(plate_number,"H42W"))
+print(final_database)
 ```
 
 -   factor
@@ -80,24 +123,191 @@ execute:
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
 
 -   numeric (using `as.numeric()` is not sufficient)
+-   Challenge 3 Q1
 
 ```{r}
 #| label: wd-4-numeric
-
+teacher_eval_compare <- teacher_eval |>
+  filter(question_no==903)|>
+  mutate(SET_level=if_else(SET_score_avg>=4, 
+                           "Excellent", 
+                           "Standard"),
+         sen_level=if_else(seniority<=4,
+                             "Junior",
+                           "Senior"))|>
+    select(
+    course_id,
+    SET_level,
+    sen_level
+         )
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
+-   Lab 4 Q3
 
 ```{r}
 #| label: wd-4-string
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, " County")) |>
+  mutate(region=fct_recode(county_name,
+    #Northern California
+    "Northern California" = "Butte",
+    "Northern California" = "Colusa",
+    "Northern California" = "Del Norte",
+    "Northern California" = "El Dorado",
+    "Northern California" = "Glenn",
+    "Northern California" = "Lassen",
+    "Northern California" = "Modoc",
+    "Northern California" = "Nevada",
+    "Northern California" = "Placer",
+    "Northern California" = "Plumas",
+    "Northern California" = "Sacramento",
+    "Northern California" = "Shasta",
+    "Northern California" = "Sierra",
+    "Northern California" = "Siskiyou",
+    "Northern California" = "Sutter",
+    "Northern California" = "Tehama",
+    "Northern California" = "Yolo",
+    "Northern California" = "Yuba",
 
+    # North Coast
+    "North Coast" = "Humboldt",
+    "North Coast" = "Lake",
+    "North Coast" = "Mendocino",
+    "North Coast" = "Napa",
+    "North Coast" = "Sonoma",
+    "North Coast" = "Trinity",
+
+    # Bay Area
+    "Bay Area" = "Alameda",
+    "Bay Area" = "Contra Costa",
+    "Bay Area" = "Marin",
+    "Bay Area" = "San Francisco",
+    "Bay Area" = "San Mateo",
+    "Bay Area" = "Santa Clara",
+    "Bay Area" = "Solano",
+
+    # Central Valley
+    "Central Valley" = "Alpine",
+    "Central Valley" = "Amador",
+    "Central Valley" = "Calaveras",
+    "Central Valley" = "Madera",
+    "Central Valley" = "Mariposa",
+    "Central Valley" = "Merced",
+    "Central Valley" = "Mono",
+    "Central Valley" = "San Joaquin",
+    "Central Valley" = "Stanislaus",
+    "Central Valley" = "Tuolumne",
+
+    # Central Coast
+    "Central Coast" = "Monterey",
+    "Central Coast" = "San Benito",
+    "Central Coast" = "San Luis Obispo",
+    "Central Coast" = "Santa Barbara",
+    "Central Coast" = "Santa Cruz",
+    "Central Coast" = "Ventura",
+
+    # South Central
+    "South Central" = "Fresno",
+    "South Central" = "Inyo",
+    "South Central" = "Kern",
+    "South Central" = "Kings",
+    "South Central" = "Tulare",
+
+    # Inland Empire
+    "Inland Empire" = "Riverside",
+    "Inland Empire" = "San Bernardino",
+
+    # Southern California
+    "Southern California" = "Los Angeles",
+    "Southern California" = "Orange",
+    "Southern California" = "Imperial",
+    "Southern California" = "San Diego"
+  ))
 ```
 
 -   factor (example must use functions from **forcats**)
+-   Lab 4 Q3
 
 ```{r}
 #| label: wd-4-factor
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, " County")) |>
+  mutate(region=fct_recode(county_name,
+    #Northern California
+    "Northern California" = "Butte",
+    "Northern California" = "Colusa",
+    "Northern California" = "Del Norte",
+    "Northern California" = "El Dorado",
+    "Northern California" = "Glenn",
+    "Northern California" = "Lassen",
+    "Northern California" = "Modoc",
+    "Northern California" = "Nevada",
+    "Northern California" = "Placer",
+    "Northern California" = "Plumas",
+    "Northern California" = "Sacramento",
+    "Northern California" = "Shasta",
+    "Northern California" = "Sierra",
+    "Northern California" = "Siskiyou",
+    "Northern California" = "Sutter",
+    "Northern California" = "Tehama",
+    "Northern California" = "Yolo",
+    "Northern California" = "Yuba",
 
+    # North Coast
+    "North Coast" = "Humboldt",
+    "North Coast" = "Lake",
+    "North Coast" = "Mendocino",
+    "North Coast" = "Napa",
+    "North Coast" = "Sonoma",
+    "North Coast" = "Trinity",
+
+    # Bay Area
+    "Bay Area" = "Alameda",
+    "Bay Area" = "Contra Costa",
+    "Bay Area" = "Marin",
+    "Bay Area" = "San Francisco",
+    "Bay Area" = "San Mateo",
+    "Bay Area" = "Santa Clara",
+    "Bay Area" = "Solano",
+
+    # Central Valley
+    "Central Valley" = "Alpine",
+    "Central Valley" = "Amador",
+    "Central Valley" = "Calaveras",
+    "Central Valley" = "Madera",
+    "Central Valley" = "Mariposa",
+    "Central Valley" = "Merced",
+    "Central Valley" = "Mono",
+    "Central Valley" = "San Joaquin",
+    "Central Valley" = "Stanislaus",
+    "Central Valley" = "Tuolumne",
+
+    # Central Coast
+    "Central Coast" = "Monterey",
+    "Central Coast" = "San Benito",
+    "Central Coast" = "San Luis Obispo",
+    "Central Coast" = "Santa Barbara",
+    "Central Coast" = "Santa Cruz",
+    "Central Coast" = "Ventura",
+
+    # South Central
+    "South Central" = "Fresno",
+    "South Central" = "Inyo",
+    "South Central" = "Kern",
+    "South Central" = "Kings",
+    "South Central" = "Tulare",
+
+    # Inland Empire
+    "Inland Empire" = "Riverside",
+    "Inland Empire" = "San Bernardino",
+
+    # Southern California
+    "Southern California" = "Los Angeles",
+    "Southern California" = "Orange",
+    "Southern California" = "Imperial",
+    "Southern California" = "San Diego"
+  ))
 ```
 
 -   date (example must use functions from **lubridate**)
@@ -110,10 +320,16 @@ execute:
 **WD-5: I can use mutating joins to combine multiple dataframes.**
 
 -   `left_join()`
+-   Lab 5
 
 ```{r}
 #| label: wd-5-left
-
+gym_filter <- left_join(get_fit_now_check_in,
+                        get_fit_now_member,
+                        by=c("membership_id"="id")) |>
+         filter(membership_status=="gold",
+                substr(membership_id,1,3)=="48Z",
+                check_in_date==20180109)
 ```
 
 -   `right_join()`
@@ -124,10 +340,16 @@ execute:
 ```
 
 -   `inner_join()`
+-   Lab 5
 
 ```{r}
 #| label: wd-5-inner
-
+# Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
+final_database<-inner_join(drivers_license,
+                          person_final_filter,
+                          by=c("id"="license_id")) |>
+  filter(str_detect(plate_number,"H42W"))
+print(final_database)
 ```
 
 -   `full_join()`
@@ -156,10 +378,29 @@ execute:
 **WD-7: I can pivot dataframes from long to wide and visa versa**
 
 -   `pivot_longer()`
+-   Lab 4 Q6
 
 ```{r}
 #| label: wd-7-long
-
+ca_childcare_graph<-ca_childcare |>
+  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
+               names_to="Age",
+               values_to="mcsa_long",
+               names_repair="unique") |>
+  filter(study_year >=2008 & study_year<=2018)
+ggplot(ca_childcare_graph,
+mapping=(aes(x=study_year,
+            y=mcsa_long,
+            color=region))) +
+  geom_jitter()+
+  facet_wrap(~Age)+
+  geom_smooth(method="loess") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))+
+  labs(title="Weekly Median Price for Center-Based Childcare ($)",
+       x="Study Year",
+       y=NULL,
+       color="California Region")+
+  theme_minimal()
 ```
 
 -   `pivot_wider()`
@@ -178,17 +419,52 @@ I've done this in the following provided assignments:
 **R-2: I can write well documented and tidy code.**
 
 -   Example of **ggplot2** plotting
+-   Lab 4 Q6
 
 ```{r}
 #| label: r-2-1
-
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+ca_childcare_graph<-ca_childcare |>
+  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
+               names_to="Age",
+               values_to="mcsa_long",
+               names_repair="unique") |>
+  filter(study_year >=2008 & study_year<=2018)
+ggplot(ca_childcare_graph,
+mapping=(aes(x=study_year,
+            y=mcsa_long,
+            color=region))) +
+  geom_jitter()+
+  facet_wrap(~Age)+
+  geom_smooth(method="loess") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))+
+  labs(title="Weekly Median Price for Center-Based Childcare ($)",
+       x="Study Year",
+       y=NULL,
+       color="California Region")+
+  theme_minimal()
 ```
 
 -   Example of **dplyr** pipeline
+-   Challenge 3 Q1
 
 ```{r}
 #| label: r-2-2
-
+teacher_eval_compare <- teacher_eval |>
+  filter(question_no==903)|>
+  mutate(SET_level=if_else(SET_score_avg>=4, 
+                           "Excellent", 
+                           "Standard"),
+         sen_level=if_else(seniority<=4,
+                             "Junior",
+                           "Senior"))|>
+    select(
+    course_id,
+    SET_level,
+    sen_level
+         )
 ```
 
 -   Example of function formatting
@@ -201,10 +477,22 @@ I've done this in the following provided assignments:
 **R-3: I can write robust programs that are resistant to changes in inputs.**
 
 -   Example -- any context
+-   Lab 3 Q10
 
 ```{r}
 #| label: r-3-example
-
+  high_low <- teacher_evals_clean |>
+  select(teacher_id,
+         question_no,
+         course_id,
+         SET_score_avg) |>
+  filter(question_no==901)|>
+  group_by(teacher_id)|>
+  summarize(mean_id=mean(SET_score_avg, na.rm=TRUE))|>
+  arrange(mean_id)|>
+  slice(c(1,n()))
+  
+print(high_low)
 ```
 
 -   Example of function stops
@@ -219,17 +507,53 @@ I've done this in the following provided assignments:
 **DVS-1: I can create visualizations for a *variety* of variable types (e.g., numeric, character, factor, date)**
 
 -   at least two numeric variables
+-   Lab 4 Q6
 
 ```{r}
 #| label: dvs-1-num
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+ca_childcare_graph<-ca_childcare |>
+  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
+               names_to="Age",
+               values_to="mcsa_long",
+               names_repair="unique") |>
+  filter(study_year >=2008 & study_year<=2018)
+ggplot(ca_childcare_graph,
+mapping=(aes(x=study_year,
+            y=mcsa_long,
+            color=region))) +
+  geom_jitter()+
+  facet_wrap(~Age)+
+  geom_smooth(method="loess") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))+
+  labs(title="Weekly Median Price for Center-Based Childcare ($)",
+       x="Study Year",
+       y=NULL,
+       color="California Region")+
+  theme_minimal()
 
 ```
 
 -   at least one numeric variable and one categorical variable
+-   Challenge 3 Q2
 
 ```{r}
 #| label: dvs-2-num-cat
-
+library(dplyr)
+library(ggplot2)
+#| label: recreate-plot
+# code chunk for Q13
+ggplot(data=teacher_eval_compare,
+  mapping=aes(x=sen_level,
+              fill=SET_level))+
+  scale_fill_manual(values=c("Excellent"="blue","Standard"="gold"))+
+  theme_bw()+
+  labs(x="Seniority of Instructor",
+       y=NULL,
+       title="Number of sections")+
+  geom_bar()
 ```
 
 -   at least two categorical variables
@@ -249,56 +573,158 @@ I've done this in the following provided assignments:
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
 
 -   I can ensure people don't tilt their head
+-   Lab 4 Q6
 
 ```{r}
 #| label: dvs-2-1
-
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+ca_childcare_graph<-ca_childcare |>
+  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
+               names_to="Age",
+               values_to="mcsa_long",
+               names_repair="unique") |>
+  filter(study_year >=2008 & study_year<=2018)
+ggplot(ca_childcare_graph,
+mapping=(aes(x=study_year,
+            y=mcsa_long,
+            color=region))) +
+  geom_jitter()+
+  facet_wrap(~Age)+
+  geom_smooth(method="loess") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))+
+  labs(title="Weekly Median Price for Center-Based Childcare ($)",
+       x="Study Year",
+       y=NULL,
+       color="California Region")+
+  theme_minimal()
 ```
 
 -   I can modify the text in my plot to be more readable
+-   Challenge 3 Q2
 
 ```{r}
 #| label: dvs-2-2
-
+library(dplyr)
+library(ggplot2)
+#| label: recreate-plot
+# code chunk for Q13
+ggplot(data=teacher_eval_compare,
+  mapping=aes(x=sen_level,
+              fill=SET_level))+
+  scale_fill_manual(values=c("Excellent"="blue","Standard"="gold"))+
+  theme_bw()+
+  labs(x="Seniority of Instructor",
+       y=NULL,
+       title="Number of sections")+
+  geom_bar()
 ```
 
 -   I can reorder my legend to align with the colors in my plot
+-   Lab 4 Q6
 
 ```{r}
 #| label: dvs-2-3
-
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+ca_childcare_graph<-ca_childcare |>
+  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
+               names_to="Age",
+               values_to="mcsa_long",
+               names_repair="unique") |>
+  filter(study_year >=2008 & study_year<=2018)
+ggplot(ca_childcare_graph,
+mapping=(aes(x=study_year,
+            y=mcsa_long,
+            color=region))) +
+  geom_jitter()+
+  facet_wrap(~Age)+
+  geom_smooth(method="loess") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))+
+  labs(title="Weekly Median Price for Center-Based Childcare ($)",
+       x="Study Year",
+       y=NULL,
+       color="California Region")+
+  theme_minimal()
 ```
 
 **DVS-3: I show creativity in my visualizations**
 
 -   I can use non-standard colors
+-   Challenge 3 Q2
 
 ```{r}
 #| label: dvs-3-1
-
+library(dplyr)
+library(ggplot2)
+#| label: recreate-plot
+# code chunk for Q13
+ggplot(data=teacher_eval_compare,
+  mapping=aes(x=sen_level,
+              fill=SET_level))+
+  scale_fill_manual(values=c("Excellent"="blue","Standard"="gold"))+
+  theme_bw()+
+  labs(x="Seniority of Instructor",
+       y=NULL,
+       title="Number of sections")+
+  geom_bar()
 ```
 
 -   I can use annotations
+-   Lab 5
 
 ```{r}
 #| label: dvs-3-2
-
+# Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
+final_database<-inner_join(drivers_license,
+                          person_final_filter,
+                          by=c("id"="license_id")) |>
+  filter(str_detect(plate_number,"H42W"))
+print(final_database)
 ```
 
 -   I can be creative...
+-   Challenge 3 Q2
 
 ```{r}
 #| label: dvs-3-3
-
+library(dplyr)
+library(ggplot2)
+#| label: recreate-plot
+# code chunk for Q13
+ggplot(data=teacher_eval_compare,
+  mapping=aes(x=sen_level,
+              fill=SET_level))+
+  scale_fill_manual(values=c("Excellent"="blue","Standard"="gold"))+
+  theme_bw()+
+  labs(x="Seniority of Instructor",
+       y=NULL,
+       title="Number of sections")+
+  geom_bar()
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
 
 -   Example using `summarize()`
+-   Lab 4 Q4
 
 ```{r}
 #| label: dvs-4-summarize
-
+ca_childcare|>
+  select(
+    region,
+    study_year,
+    mhi_2018
+    ) |>
+  filter(study_year==2008 | study_year==2018)|>
+  group_by(region) |>
+  summarize(
+    mhi_2008 = median(mhi_2018[study_year == 2008], na.rm = TRUE), 
+    mhi_2018 = median(mhi_2018[study_year == 2018], na.rm = TRUE)) |>
+  arrange(desc(mhi_2018)) |>
+  arrange(desc(mhi_2008))
 ```
 
 -   Example using `across()`
@@ -311,49 +737,106 @@ I've done this in the following provided assignments:
 **DVS-5: I can find summaries of variables across multiple groups.**
 
 -   Example 1
+-   Lab 3 Q8
 
 ```{r}
 #| label: dvs-5-1
-
+instructor_data <- teacher_evals_clean |>
+  select(academic_degree,
+         seniority,
+         sex,
+         teacher_id) 
+instructor_summary<-instructor_data |>
+  summarize(
+    distinct_degrees=n_distinct(academic_degree),
+    distinct_seniority=n_distinct(seniority),
+    gender_distribution=n_distinct(sex),
+    male_count=n_distinct(teacher_id[sex=="male"]),
+    female_count=n_distinct(teacher_id[sex=="female"]),
+    total_instructors=n_distinct(teacher_id)) 
+print(instructor_summary)
 ```
 
 -   Example 2
+-   Lab 3 Q6
 
 ```{r}
 #| label: dvs-5-2
-
+unique_counts<- teacher_evals_clean |>
+  summarize (unique_teachers=n_distinct(teacher_id),
+             unique_courses=n_distinct(course_id),
+             .group="group")
+print(unique_counts)
 ```
 
 **DVS-6: I can create tables which make my summaries clear to the reader.**
 
 -   Example 1
+-   Lab 3 Q8
 
 ```{r}
 #| label: dvs-6-1
-
+instructor_data <- teacher_evals_clean |>
+  select(academic_degree,
+         seniority,
+         sex,
+         teacher_id) 
+instructor_summary<-instructor_data |>
+  summarize(
+    distinct_degrees=n_distinct(academic_degree),
+    distinct_seniority=n_distinct(seniority),
+    gender_distribution=n_distinct(sex),
+    male_count=n_distinct(teacher_id[sex=="male"]),
+    female_count=n_distinct(teacher_id[sex=="female"]),
+    total_instructors=n_distinct(teacher_id)) 
+print(instructor_summary)
 ```
 
 -   Example 2
+-   Lab 3 Q6
 
 ```{r}
 #| label: dvs-6-2
-
+unique_counts<- teacher_evals_clean |>
+  summarize (unique_teachers=n_distinct(teacher_id),
+             unique_courses=n_distinct(course_id),
+             .group="group")
+print(unique_counts)
 ```
 
 **DVS-7: I show creativity in my tables.**
 
 -   Example 1
+-   Lab 3 Q8
 
 ```{r}
 #| label: dvs-7-1
-
+instructor_data <- teacher_evals_clean |>
+  select(academic_degree,
+         seniority,
+         sex,
+         teacher_id) 
+instructor_summary<-instructor_data |>
+  summarize(
+    distinct_degrees=n_distinct(academic_degree),
+    distinct_seniority=n_distinct(seniority),
+    gender_distribution=n_distinct(sex),
+    male_count=n_distinct(teacher_id[sex=="male"]),
+    female_count=n_distinct(teacher_id[sex=="female"]),
+    total_instructors=n_distinct(teacher_id)) 
+print(instructor_summary)
 ```
 
 -   Example 2
+-   Lab 3 Q6
 
 ```{r}
 #| label: dvs-7-2
-
+unique_counts<- teacher_evals_clean |>
+  summarize (unique_teachers=n_distinct(teacher_id),
+             unique_courses=n_distinct(course_id),
+             .group="group")
+print(unique_counts)
 ```
 
 ## Program Efficiency
@@ -368,33 +851,59 @@ I've done this in the following provided assignments:
 ```
 
 -   `across()`
+-   Lab 3 Q5
 
 ```{r}
 #| label: pe-1-across
-
+teacher_evals_clean<- teacher_eval |>
+  rename(sex=gender) |>
+  filter(no_participants>10) |>
+  mutate(across(c(teacher_id, question_no, course_id))) |>
+  select(course_id,
+         teacher_id,
+         question_no,
+         no_participants,
+         resp_share,
+         SET_score_avg,
+         percent_failed_cur,
+         academic_degree,
+         seniority,
+         sex)
 ```
 
 -   `map()` functions
+-   Lab 4 Q7
 
 ```{r}
 #| label: pe-1-map-1
-
+ggplot(ca_childcare,
+       mapping=(aes(x=mhi_2018,
+                    y=mc_infant)))+
+  geom_point()+
+  geom_smooth(method="lm")+
+  labs(x="Median Household Income (Expressed in 2018 Dollars",
+       y=NULL,
+       title="Scatterplot and linear regression line of median household income (expressed in 2018 dollars) compared to median weekly price for center-based childcare for infant in California (Y axis")
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
 
 -   Function that operates on vectors
+-   Challenge 3 Q3
 
 ```{r}
 #| label: pe-2-1
-
+chi_sq_result <-chisq.test(teacher_eval_compare$SET_level,
+                          teacher_eval_compare$sen_level)
+print(chi_sq_result)
 ```
 
 -   Function that operates on data frames
+-   Lab 3 Q3
 
 ```{r}
 #| label: pe-2-2
-
+glimpse(teacher_eval)
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -423,17 +932,51 @@ I've done this in the following provided assignments:
 **PE-4: I can use modern tools when carrying out my analysis.**
 
 -   I can use functions which are not superseded or deprecated
+-   Lab 3 Q10
 
 ```{r}
 #| label: pe-4-1
-
+  high_low <- teacher_evals_clean |>
+  select(teacher_id,
+         question_no,
+         course_id,
+         SET_score_avg) |>
+  filter(question_no==901)|>
+  group_by(teacher_id)|>
+  summarize(mean_id=mean(SET_score_avg, na.rm=TRUE))|>
+  arrange(mean_id)|>
+  slice(c(1,n()))
+  
+print(high_low)
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
+-   Lab 4 Q6
 
 ```{r}
 #| label: pe-4-2
-
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+ca_childcare_graph<-ca_childcare |>
+  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
+               names_to="Age",
+               values_to="mcsa_long",
+               names_repair="unique") |>
+  filter(study_year >=2008 & study_year<=2018)
+ggplot(ca_childcare_graph,
+mapping=(aes(x=study_year,
+            y=mcsa_long,
+            color=region))) +
+  geom_jitter()+
+  facet_wrap(~Age)+
+  geom_smooth(method="loess") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))+
+  labs(title="Weekly Median Price for Center-Based Childcare ($)",
+       x="Study Year",
+       y=NULL,
+       color="California Region")+
+  theme_minimal()
 ```
 
 ## Data Simulation & Statisical Models
@@ -457,22 +1000,75 @@ I've done this in the following provided assignments:
 **DSSM-2: I can conduct common statistical analyses in R.**
 
 -   Example 1
+-   Lab 1 Q9
 
 ```{r}
 #| label: dsm-2-1
-
+t_test_result <- t.test(len ~ supp, 
+                        data = ToothGrowth, 
+                        var.equal = FALSE, 
+                        alternative = "two.sided")
+t_test_result
 ```
 
 -   Example 2
+-   Challenge 3 Q3
 
 ```{r}
 #| label: dsm-2-2
-
+chi_sq_result <-chisq.test(teacher_eval_compare$SET_level,
+                          teacher_eval_compare$sen_level)
+print(chi_sq_result)
 ```
 
 ## Revising My Thinking
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
+
+Throughout the course, I've revised every lab and challenge I've received growings on. I've done this in order to improve my logical skills and my programming abilities. I've learned how to apply functions to multiple columns at once, how to write tidy code, and how to apply rules to entire documents, and only one chunk. As I've learned these skills and more, I put them down in my revisions, noting what I did wrong, what I changed, what I learned, and where I plan to use it. I believe I've demonstrated an **A** in revisions.
+
+Examples of revisions:
+
++-----------------------------------+------------------------------------------------------------------------------+
+| **Q3: Description of data Lab 3** | What university are these evals from? What year(s) were the evals collected? |
++===================================+==============================================================================+
++-----------------------------------+------------------------------------------------------------------------------+
+
+Revision: **Each chunk of data is separated by class ID, with Class Ids having a certain number of rows for for the amount of questions asked. The students are also classified by age, gender, the percent that failed, and more. Each row is a question asked to a group of students, and their averages. We have roughly 250 participants for each survey (with some outliers). Surveys appear to have been taken on Friday.**
+
+**Revisions: This data is from the teaching staff of the University of Poland, at the end of the end of the winter semester of the 2020-2021 academic year. All classes were entirely online. In my original response, I didn’t read the top of the page where the data description was shown, and so only included information from the glimpse function. In future labs, I plan to always read the data description before starting the lab so that I know the significance of the data I’m working with, and the impact it may have.**
+
+Example 2:
+
+Feedback:
+
++---------------------------------+------------------------------------------------------------------------------------------------------------------------+
+| **Q8: Instructor demographics** | Careful! You just found that there are 294 distinct teachers included in these data. So why are your counts over 2000? |
++=================================+========================================================================================================================+
++---------------------------------+------------------------------------------------------------------------------------------------------------------------+
+
+Revisions: **There are 3464 male teachers, and 3199 female teachers. 4 distinct degrees, and 11 distinct seniorities. There are 6663 total instructors.**
+
+**Revisions: I know now there are 160 male teachers, and 134 female. There are 294 instructors. My mistake was using the n total function for teachers, when I should have been using n_distinct. My original code overcounted the number of teachers, as it would count teachers as unique even if they were the same teacher teaching multiple courses. I now know to use n_distinct for unique teachers, as this will count them based off of their teacher id, and not how many times they appear on the overall database.**
+
+Code:
+
+```{r}
+Instructor_data <- teacher_evals_clean |>
+  select(academic_degree,
+         seniority,
+         sex,
+         teacher_id) 
+instructor_summary<-instructor_data |>
+  summarize(
+    distinct_degrees=n_distinct(academic_degree),
+    distinct_seniority=n_distinct(seniority),
+    gender_distribution=n_distinct(sex),
+    male_count=n_distinct(teacher_id[sex=="male"]),
+    female_count=n_distinct(teacher_id[sex=="female"]),
+    total_instructors=n_distinct(teacher_id)) 
+print(instructor_summary)
+```
 
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
 
@@ -480,8 +1076,73 @@ I've done this in the following provided assignments:
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
+When it comes to extending my thinking, I've tried to include code from previous assignments on the next. This can be seen in examples above such as mutate(across), using the here function to read in data, and n_distinct for averages of unique counts. However I believe I've earned a **B+** grade here, as while I've extended my thinking more than what is required, I believe I should complete harder level challenges before getting to an A.
+
 ## Peer Support & Collaboration
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+
+In this regard, I feel I've earned an **A** grade. I believe I have given specific and helpful feedback to all assigned peer reviews, and have always tried to be good about specific issues the coder can improve upon in the future. In terms of the weekly pair programming activities, I feel I've grown in terms of being able to teach other specific functions to use when doing the assignment, as well as learning from the other student where I can improve. Contrary to what I used to believe, I now think that collaborating on code can have a lot of benefits, including knowing when and how to ask for help, that each person has a different skill-set that helps in different ways (logical flow, function knowledge, formatting, etc) that makes the program better than it would have been otherwise.
+
+Code in question:
+
+```{r}
+library(forcats)
+
+ca_childcare <- ca_childcare |> mutate(county_name = str_remove( county_name, " County"), region =  fct_collapse(county_name,
+                               "Superior California" = c("Butte", "Colusa", "El Dorado", "Glenn", "Lassen", "Modoc", "Nevada", "Placer", "Plumas", "Sacramento", "Shasta", "Sierra", "Siskiyou", "Sutter", "Tehama", "Yolo", "Yuba"), 
+                               "North Coast" = c("Del Norte", "Humboldt", "Lake", "Mendocino", "Napa", "Sonoma", "Trinity"),
+                               "San Francisco Bay Area" = c("Alameda", "Contra Costa", "Marin", "San Francisco", "San Mateo", "Santa Clara", "Solano"), 
+                               "Northern San Joaquin Valley" = c("Alpine", "Amador", "Calaveras", "Madera", "Mariposa", "Merced", "Mono", "San Joaquin", "Stanislaus", "Tuolumne"), 
+                      
+                               "Central Coast" = c("Monterey", "San Benito", "San Luis Obispo", "Santa Barbara", "Santa Cruz", "Ventura"), 
+                               "Southern San Joaquin Valley" = c("Fresno", "Inyo", "Kern", "Kings", "Tulare"), 
+                               "Inland Empire" = c("Riverside", "San Bernardino"),
+                               "Los Angeles County" = c("Los Angeles"),
+                               "Orange County" = c("Orange"),
+                               "San Diego - Imperial" = c("San Diego", "Imperial")
+```
+
+```{r}
+ca_childcare_long <- ca_childcare |>
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age_group",
+    values_to = "median_price"
+  )
+
+ca_childcare_long <- ca_childcare_long |>
+  mutate(age_group = fct_relevel(age_group, 
+                                 "mc_infant", 
+                                 "mc_toddler", 
+                                 "mc_preschool"))
+
+ggplot(ca_childcare_long, aes(x = study_year, y = median_price, color = region)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ age_group, 
+             labeller = as_labeller(c(
+               "mc_infant" = "Infant",
+               "mc_toddler" = "Toddler",
+               "mc_preschool" = "Preschool"
+             ))
+  ) +
+  theme_bw() +
+  theme(legend.position = "right") +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = "",
+    color = "California Region"
+  )
+```
+
+Lab 4, Ian Alexander Cay
+
+Your code looks really good, you were very good about both tidy and efficient code. The only changes I would make are on question 3, placing each county on a seperate line would make it easier for the reader to read, and on question 6, changing the x axis, as right now, the labels are jumbled together, and are placed in increments of 0.5, which doesn't make sense for year. I would suggest mutating years to a character variable, as this would solve the problem.
+
+Lab 3, Noor Belal Karaki
+
+Your code looks great, all code seems to work and your outputs look right. Some changes I would make are to use \|\> instead of %\>%, as I'm not sure how that works. Additionally, using an enter to get to the next space should be used after commas, and not for every line so we can distinguish where you are making separate arguments. Otherwise your code looks great!
