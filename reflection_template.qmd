@@ -1030,7 +1030,7 @@ Throughout the course, I've revised every lab and challenge I've received growin
 Examples of revisions:
 
 | **Q3: Description of data Lab 3** | What university are these evals from? What year(s) were the evals collected? |
-|-----------------------|-------------------------------------------------|
+|-----------------------------------|------------------------------------------------------------------------------|
 |                                   |                                                                              |
 
 Revision: **Each chunk of data is separated by class ID, with Class Ids having a certain number of rows for for the amount of questions asked. The students are also classified by age, gender, the percent that failed, and more. Each row is a question asked to a group of students, and their averages. We have roughly 250 participants for each survey (with some outliers). Surveys appear to have been taken on Friday.**
@@ -1042,7 +1042,7 @@ Example 2:
 Feedback:
 
 | **Q8: Instructor demographics** | Careful! You just found that there are 294 distinct teachers included in these data. So why are your counts over 2000? |
-|------------------|------------------------------------------------------|
+|---------------------------------|------------------------------------------------------------------------------------------------------------------------|
 |                                 |                                                                                                                        |
 
 Revisions: **There are 3464 male teachers, and 3199 female teachers. 4 distinct degrees, and 11 distinct seniorities. There are 6663 total instructors.**
