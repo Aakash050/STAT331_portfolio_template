@@ -15,3 +15,38 @@ As we’ve said in the class efficiency is a pivotal component of statistical co
 -   Why is efficiency important?
 
 -   Where did you encounter efficiency, and what were some [“a-ha” moments](https://www.merriam-webster.com/dictionary/aha%20moment) you had about efficiency? (For the latter, tie each a-ha moment to an artifact in the portfolio.)
+
+To me, the definition of efficiency is the point where readability meets the most effective computing process possible. In terms of data science, that means choosing the right tools to accomplish data simulation, manipulation, visualization, and more, while making sure that others can understand your code. Efficiency allows you to reduce computation time (which becomes especially important as datasets become larger and larger) and allow others to understand your code, which can become especially important as you move on to larger teams and bigger problems to solve. Some of the areas I encountered efficiency where knowing when to use intermediate objects vs directly pipelining code, such as
+
+```{r}
+ca_childcare |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "Age",
+               values_to = "mcsa_long",
+               names_repair = "unique") 
+```
+
+where previously I had saved this in an intermediate object, and then put it into ggplot, instead of directly piping it, like I do now (can be seen in portfolio. I also learned how to be more efficient by realizing the values of comments and spacing, as this makes the code easier to read, and while this may not correspond to computer efficiency, it certainly corresponds to human efficiency, which I believe to be just as important. In areas like this:
+
+```{r}
+# Creating function
+rescale_01 <- function(x) {
+  stopifnot(is.numeric(x), 
+            length(x) > 1
+            )
+  range_vals <- range(x, 
+                      na.rm=TRUE)
+  return(
+    (x - range_vals[1]) / (range_vals[2] - range_vals[1]
+                           )
+    )
+}
+#Function Checks
+rescale_column <- function(df, group_vars) {
+```
+
+learning how to make spacing accurate, and input comments to make others understand my process has allowed me to become a better team coder, and made working with others easier. Throughout this class, I've learned how to become more efficient in terms of my ability to use better processes and computational work, and more efficient in terms of my ability to think about and communicate programming.
+
+\*\*Note: Most code here only has small chunks of the total code, which can be seen in the portfolio.

@@ -9,3 +9,56 @@ editor: visual
 -   Focus specifically on data science concepts and the skills we employed in learning them, not a laundry list of topics that you learned (those are in the syllabus, so I know them already).
 
 -   Focus on a small number of specific areas of growth for you that happened in STAT 331. Identify at least one artifact in your portfolio that illustrates each area of growth and explain how this artifact shows growth in the way you are describing.
+
+Throughout this quarter, I believe I've grown as a data scientist through my ability to display data, and manipulate data.
+
+When it comes to displaying data, throughout the quarter I've learned to use different skills to graph, from ggplot to dpylr. These skills have allowed me to realize the power in visualization, realizing that some graphs are better for certain data, while others are better for other data. For example, this scatterplot
+
+```{r}
+#| label: scatterplot-median-income-vs-childcare-cost
+ggplot(ca_childcare,
+       mapping = (aes(x = mhi_2018,
+                      y = mc_infant)
+                  )
+       ) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x = "Median Household Income (Expressed in 2018 Dollars)",
+       y = NULL,
+       title = "Scatterplot of median household income compared to median weekly price (Y) for center-based childcare for infant in California",
+       subtitle = "Linear regression line in blue") +
+  #Found through r help package,scale_variable_continous breaks up a label by a numerical factor and specifies how long the axis should be. Limits explicitly state limits in case a coder wants to go past the default limits set by the variable. Label dollar is used to add dollar signs to both the x and y axis. 
+theme(plot.title = element_text(hjust = 0.5, size = 8,),
+      plot.subtitle = element_text(size = 8)
+      ) + 
+  scale_x_continuous(labels = label_dollar(),
+                     limits = c(35000, 120000), 
+                     breaks = seq(0, 120000, 
+                                  by = 20000)
+                     ) +
+  scale_y_continuous(labels = label_dollar())
+```
+
+is a good example of the power of coding, as a bunch of data that doesn't necessarily mean anything becomes a lot more powerful when seen from a different perspective. I've also grown in my ability as a data scientist through learning how to manipulate data better. Specifically, using the pipeline operator and learning how to use functions like summarize vs mutate has shown me how powerful r can be.
+
+```{r}
+#| label: visual-of-missing-values-over-time
+BlackfootFish |>
+  group_by(year, 
+           section, 
+           trip) |>
+  mutate(missing_values = sum(if_any(everything(),
+                                     is.na)
+                              ),
+         total=n(),
+         percent_missing_values = (missing_values/total),
+         trip = as.factor(trip),
+         trip = fct_recode(trip,
+                           "Trip 1" = "1",
+                           "Trip 2" = "2"),
+         year = as.factor(year)
+```
+
+In a place like this, I can clearly see the impact of summarizing missing values, as it allows me to create impactful visualizations regarding the data. Overall, through learning how to visualize and manipulate data, I've learned how powerful data science can be, and have improved my abilities to become one.
+
+\*\*Note: Most code here only has small chunks of the total code, which can be seen in the portfolio.

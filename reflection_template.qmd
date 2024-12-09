@@ -13,7 +13,7 @@ execute:
 
 [**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an A-.
 
-While I believe I've earned an A grade in revisions, and in peer collaboration, I believe I need to be better about extending my thinking. I also think that because there are still a lot of sections I haven't demonstrated mastery of yet, I need to continue to grow in order to earn an A.
+Overall, I believe I've earned an A- in the class. I've done everything in this class to the absolute best of my ability, including coding, peer reviewing and collaborating, extending my thinking, and revisions. I believe I've learned all learning objectives satisfactorily, and have put my most into this portfolio. I've also believed I've learned a lot about the world of coding and data science. However, a lot of the code below is revised, and may have some slight ineffieciency (as it was only checked by me). However, I've checked over this code many times, and believe I'm consistent, with tidy and efficient code that accomplishes all tasks efficiently. Overall, I think I've earned an A-, as I'm sure there are some issues in this code I overlooked, and I'm not very confident about some of the functions I've submitted.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -26,7 +26,9 @@ While I believe I've earned an A grade in revisions, and in peer collaboration, 
 
 ```{r}
 #| label: wd-1-csv
-teacher_eval <-read_csv(here("data", "teacher_evals.csv"))
+teacher_eval <- read_csv(here("data", 
+                              "teacher_evals.csv")
+                         )
 ```
 
 -   `xlsx`
@@ -42,11 +44,15 @@ military <- read_xlsx(here::here("data",
 ```
 
 -   `txt`
--   PA 2 Q 2
+-   Check in 2 Q3
 
 ```{r}
 #| label: wd-1-txt
-message_data <- read_csv("https://github.com/earobinson95/stat331-calpoly/raw/master/practice-activities/data/scrambled_message.txt")
+ages_tab <- read_table(file = here::here("Week 2", 
+                                         "Check-ins", 
+                                         "Ages_Data", 
+                                         "ages_tab.txt")
+                       )
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
@@ -55,10 +61,14 @@ Lab 3 Q5
 
 ```{r}
 #| label: wd-2
-teacher_evals_clean<- teacher_eval |>
-  rename(sex=gender) |>
-  filter(no_participants>10) |>
-  mutate(across(c(teacher_id, question_no, course_id))) |>
+teacher_evals_clean <- teacher_eval |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |>
+  mutate(across(c(teacher_id, 
+                  question_no, 
+                  course_id)
+                )
+         ) |>
   select(course_id,
          teacher_id,
          question_no,
@@ -81,7 +91,11 @@ teacher_evals_clean<- teacher_eval |>
 teacher_evals_clean<- teacher_eval |>
   rename(sex=gender) |>
   filter(no_participants>10) |>
-  mutate(across(c(teacher_id, question_no, course_id))) |>
+  mutate(across(c(teacher_id, 
+                  question_no, 
+                  course_id)
+                )
+         ) |>
   select(course_id,
          teacher_id,
          question_no,
@@ -96,28 +110,77 @@ teacher_evals_clean<- teacher_eval |>
 
 -   character -- specifically a string (example must use functions from **stringr**)
 -   Lab 5
+-   Revisions: Created intermediate object to save information of suspect, later used in a semi join.
+-   Renamed id to license id so that in our join we don't get an id.y column for license id's.
+-   Used join by instead of by = c(" .. ")
+-   Removed excess filter
 
 ```{r}
 #| label: wd-3-string
-final_database<-inner_join(drivers_license,
-                          person_final_filter,
-                          by=c("id"="license_id")) |>
-  filter(str_detect(plate_number,"H42W"))
-print(final_database)
+#| label: Final-Suspect
+# Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
+id_semi_join <- drivers_license |>
+  rename(license_id = id) |>
+  filter(license_id %in% c("173289", "423327"),
+                           str_detect(plate_number,"H42W")) |>
+  inner_join(person, 
+             join_by(license_id))
 ```
 
 -   factor
+-   Lab 5
+-   Revisions: Renamed id to license_id so that I didn't have to combine by id.y in my second left join
+-   Mutated date to a ymd type to make calling month and year more efficient.
+-   Changed left join in driver's license and person to right join, in order to prioritize information from person dataset
 
 ```{r}
 #| label: wd-3-factor
-
+#| label: JB_Employer
+# Using Jeremy Bowers interview to find out who hired him
+drivers_license |>
+  rename(license_id = id) |>
+  right_join(person,
+            join_by(license_id)) |>
+    left_join(facebook_event_checkin,
+            join_by(id == person_id)) |>
+    mutate(date = ymd(date),
+           month = month(date),
+           year = year(date))|>
+    filter(hair_color=="red",
+         car_make == "Tesla",
+         car_model == "Model S",
+         height %in% c(65:67),
+         event_name == "SQL Symphony Concert",
+         month == 12,
+         year == 2017) |>
+  group_by(name, id) |>
+  summarize(event_name = n()) |>
+  filter(event_name == 3) |>
+  select(name, id)
 ```
 
 -   date (example must use functions from **lubridate**)
+-   Lab 5
+-   Revisions: On inner join, now filter by name as well to not have duplicate name columns
+-   Also use join_by instead of by = c(" .. ")
+-   Mutated membership id using str_sub to only include the first to 3rd numbers of the membership id, to make filtering more efficient.
 
 ```{r}
 #| label: wd-3-date
+#| label: Gym-Filter
+#Now that we have the info from our witnesses: 1: I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. 2: The man got into a car with a plate that included "H42W". 2: I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.
 
+#We now filter through our gym data set to see membership numbers that start with 48Z, that are gold, and that checked in on January 9th. From their, we find his car. 
+get_fit_now_check_in |>
+  left_join(get_fit_now_member,
+            join_by(membership_id == id)) |>
+  mutate(membership_id = str_sub(membership_id, 1, 3))|>
+  filter(membership_status == "gold",
+         membership_id == "48Z",
+         ymd(check_in_date)==ymd(20180109)) |>
+  inner_join(person,
+             join_by(person_id == id,
+                     name == name)) 
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -128,14 +191,15 @@ print(final_database)
 ```{r}
 #| label: wd-4-numeric
 teacher_eval_compare <- teacher_eval |>
-  filter(question_no==903)|>
-  mutate(SET_level=if_else(SET_score_avg>=4, 
-                           "Excellent", 
-                           "Standard"),
-         sen_level=if_else(seniority<=4,
+  filter(question_no == 903) |>
+  mutate(SET_level = if_else(SET_score_avg >= 4, 
+                             "Excellent", 
+                             "Standard"),
+         sen_level = if_else(seniority <= 4,
                              "Junior",
-                           "Senior"))|>
-    select(
+                             "Senior")
+         ) |>
+  select(
     course_id,
     SET_level,
     sen_level
@@ -143,213 +207,203 @@ teacher_eval_compare <- teacher_eval |>
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
--   Lab 4 Q3
+-   Lab 5
+-   Revisions: On inner join, now filter by name as well to not have duplicate name columns
+-   Also use join_by instead of by = c(" .. ")
+-   Mutated membership id using str_sub to only include the first to 3rd numbers of the membership id, to make filtering more efficient.
 
 ```{r}
 #| label: wd-4-string
-ca_childcare <- ca_childcare |> 
-  mutate(county_name = str_remove(county_name, " County")) |>
-  mutate(region=fct_recode(county_name,
-    #Northern California
-    "Northern California" = "Butte",
-    "Northern California" = "Colusa",
-    "Northern California" = "Del Norte",
-    "Northern California" = "El Dorado",
-    "Northern California" = "Glenn",
-    "Northern California" = "Lassen",
-    "Northern California" = "Modoc",
-    "Northern California" = "Nevada",
-    "Northern California" = "Placer",
-    "Northern California" = "Plumas",
-    "Northern California" = "Sacramento",
-    "Northern California" = "Shasta",
-    "Northern California" = "Sierra",
-    "Northern California" = "Siskiyou",
-    "Northern California" = "Sutter",
-    "Northern California" = "Tehama",
-    "Northern California" = "Yolo",
-    "Northern California" = "Yuba",
+#| label: Gym-Filter
+#Now that we have the info from our witnesses: 1: I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. 2: The man got into a car with a plate that included "H42W". 2: I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.
 
-    # North Coast
-    "North Coast" = "Humboldt",
-    "North Coast" = "Lake",
-    "North Coast" = "Mendocino",
-    "North Coast" = "Napa",
-    "North Coast" = "Sonoma",
-    "North Coast" = "Trinity",
-
-    # Bay Area
-    "Bay Area" = "Alameda",
-    "Bay Area" = "Contra Costa",
-    "Bay Area" = "Marin",
-    "Bay Area" = "San Francisco",
-    "Bay Area" = "San Mateo",
-    "Bay Area" = "Santa Clara",
-    "Bay Area" = "Solano",
-
-    # Central Valley
-    "Central Valley" = "Alpine",
-    "Central Valley" = "Amador",
-    "Central Valley" = "Calaveras",
-    "Central Valley" = "Madera",
-    "Central Valley" = "Mariposa",
-    "Central Valley" = "Merced",
-    "Central Valley" = "Mono",
-    "Central Valley" = "San Joaquin",
-    "Central Valley" = "Stanislaus",
-    "Central Valley" = "Tuolumne",
-
-    # Central Coast
-    "Central Coast" = "Monterey",
-    "Central Coast" = "San Benito",
-    "Central Coast" = "San Luis Obispo",
-    "Central Coast" = "Santa Barbara",
-    "Central Coast" = "Santa Cruz",
-    "Central Coast" = "Ventura",
-
-    # South Central
-    "South Central" = "Fresno",
-    "South Central" = "Inyo",
-    "South Central" = "Kern",
-    "South Central" = "Kings",
-    "South Central" = "Tulare",
-
-    # Inland Empire
-    "Inland Empire" = "Riverside",
-    "Inland Empire" = "San Bernardino",
-
-    # Southern California
-    "Southern California" = "Los Angeles",
-    "Southern California" = "Orange",
-    "Southern California" = "Imperial",
-    "Southern California" = "San Diego"
-  ))
+#We now filter through our gym data set to see membership numbers that start with 48Z, that are gold, and that checked in on January 9th. From their, we find his car. 
+get_fit_now_check_in |>
+  left_join(get_fit_now_member,
+            join_by(membership_id == id)) |>
+  mutate(membership_id = str_sub(membership_id, 1, 3))|>
+  filter(membership_status == "gold",
+         membership_id == "48Z",
+         ymd(check_in_date)==ymd(20180109)) |>
+  inner_join(person,
+             join_by(person_id == id,
+                     name == name)) 
 ```
 
 -   factor (example must use functions from **forcats**)
 -   Lab 4 Q3
+-   Revision: Removed extra mutate call, where code originally had a mutate call for str_remove, and one for fct_collapse
+-   Renamed counties according to California census
 
 ```{r}
 #| label: wd-4-factor
+#| label: recoding-county-to-census-regions
 ca_childcare <- ca_childcare |> 
-  mutate(county_name = str_remove(county_name, " County")) |>
-  mutate(region=fct_recode(county_name,
-    #Northern California
-    "Northern California" = "Butte",
-    "Northern California" = "Colusa",
-    "Northern California" = "Del Norte",
-    "Northern California" = "El Dorado",
-    "Northern California" = "Glenn",
-    "Northern California" = "Lassen",
-    "Northern California" = "Modoc",
-    "Northern California" = "Nevada",
-    "Northern California" = "Placer",
-    "Northern California" = "Plumas",
-    "Northern California" = "Sacramento",
-    "Northern California" = "Shasta",
-    "Northern California" = "Sierra",
-    "Northern California" = "Siskiyou",
-    "Northern California" = "Sutter",
-    "Northern California" = "Tehama",
-    "Northern California" = "Yolo",
-    "Northern California" = "Yuba",
-
-    # North Coast
-    "North Coast" = "Humboldt",
-    "North Coast" = "Lake",
-    "North Coast" = "Mendocino",
-    "North Coast" = "Napa",
-    "North Coast" = "Sonoma",
-    "North Coast" = "Trinity",
-
-    # Bay Area
-    "Bay Area" = "Alameda",
-    "Bay Area" = "Contra Costa",
-    "Bay Area" = "Marin",
-    "Bay Area" = "San Francisco",
-    "Bay Area" = "San Mateo",
-    "Bay Area" = "Santa Clara",
-    "Bay Area" = "Solano",
-
-    # Central Valley
-    "Central Valley" = "Alpine",
-    "Central Valley" = "Amador",
-    "Central Valley" = "Calaveras",
-    "Central Valley" = "Madera",
-    "Central Valley" = "Mariposa",
-    "Central Valley" = "Merced",
-    "Central Valley" = "Mono",
-    "Central Valley" = "San Joaquin",
-    "Central Valley" = "Stanislaus",
-    "Central Valley" = "Tuolumne",
-
-    # Central Coast
-    "Central Coast" = "Monterey",
-    "Central Coast" = "San Benito",
-    "Central Coast" = "San Luis Obispo",
-    "Central Coast" = "Santa Barbara",
-    "Central Coast" = "Santa Cruz",
-    "Central Coast" = "Ventura",
-
-    # South Central
-    "South Central" = "Fresno",
-    "South Central" = "Inyo",
-    "South Central" = "Kern",
-    "South Central" = "Kings",
-    "South Central" = "Tulare",
-
-    # Inland Empire
-    "Inland Empire" = "Riverside",
-    "Inland Empire" = "San Bernardino",
-
-    # Southern California
-    "Southern California" = "Los Angeles",
-    "Southern California" = "Orange",
-    "Southern California" = "Imperial",
-    "Southern California" = "San Diego"
-  ))
+  mutate(county_name = str_remove(county_name, " County"),
+         region=fct_collapse(county_name,
+                             "Superior California" = c("Butte", "Colusa", 
+                             "El Dorado", "Glenn", "Lassen", "Modoc", "Nevada", 
+                             "Placer", "Plumas", "Sacramento", "Shasta", 
+                             "Sierra", "Siskiyou", "Sutter", "Tehama", "Yolo",
+                             "Yuba"),
+                             # North Coast
+                             "North Coast" = c("Del Norte", "Humboldt", "Lake",
+                                               "Mendocino", "Napa", "Sonoma",
+                                               "Trinity"),
+                             # San Francisco Bay Area
+                             "San Francisco Bay Area" = c("Alameda", 
+                                                          "Contra Costa", "Marin",
+                                                          "San Francisco", 
+                                                          "San Mateo", 
+                                                          "Santa Clara", 
+                                                          "Solano"),
+                             # Northern San Joaquin Valley
+                             "Northern San Joaquin Valley" = c("Alpine", "Amador",
+                                                               "Calaveras",
+                                                               "Madera",
+                                                               "Mariposa", 
+                                                               "Merced",
+                                                               "Mono", 
+                                                               "San Joaquin",
+                                                               "Stanislaus", 
+                                                               "Tuolumne"),
+                             # Central Coast
+                             "Central Coast" = c("Monterey", "San Benito", 
+                                                 "San Luis Obispo", 
+                                                 "Santa Barbara", "Santa Cruz", 
+                                                 "Ventura"),
+                             # Southern San Joaquin Valley
+                             "Southern San Joaquin Valley" = c("Fresno", "Inyo",
+                                                               "Kern", "Kings", 
+                                                               "Tulare"),
+                             # Inland Empire
+                             "Inland Empire" = c("Riverside", "San Bernardino"),
+                             # Los Angeles County
+                             "Los Angeles County" = c("Los Angeles"),
+                             # Orange County
+                             "Orange County" = c("Orange"),
+                             # San Diego - Imperial
+                             "San Diego - Imperial" = c("Imperial", "San Diego")
+                             )
+         )
 ```
 
 -   date (example must use functions from **lubridate**)
+-   Lab 5
+-   Revisions: Renamed id to license_id so that I didn't have to combine by id.y in my second left join
+-   Mutated date to a ymd type to make calling month and year more efficient.
+-   Changed left join in driver's license and person to right join, in order to prioritize information from person dataset
 
 ```{r}
 #| label: wd-4-date
-
+#| label: JB_Employer
+# Using Jeremy Bowers interview to find out who hired him
+drivers_license |>
+  rename(license_id = id) |>
+  right_join(person,
+            join_by(license_id)) |>
+    left_join(facebook_event_checkin,
+            join_by(id == person_id)) |>
+    mutate(date = ymd(date),
+           month = month(date),
+           year = year(date)) |>
+    filter(hair_color == "red",
+         car_make == "Tesla",
+         car_model == "Model S",
+         height %in% c(65:67),
+         event_name == "SQL Symphony Concert",
+         month == 12,
+         year == 2017) |>
+  group_by(name, id) |>
+  summarize(event_name = n()) |>
+  filter(event_name == 3) |>
+  select(name, id)
+  
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
 
 -   `left_join()`
 -   Lab 5
+-   Revisions: Renamed id to license_id so that I didn't have to combine by id.y in my second left join
+-   Mutated date to a ymd type to make calling month and year more efficient.
+-   Changed left join in driver's license and person to right join, in order to prioritize information from person dataset
 
 ```{r}
 #| label: wd-5-left
-gym_filter <- left_join(get_fit_now_check_in,
-                        get_fit_now_member,
-                        by=c("membership_id"="id")) |>
-         filter(membership_status=="gold",
-                substr(membership_id,1,3)=="48Z",
-                check_in_date==20180109)
+#| label: JB_Employer
+# Using Jeremy Bowers interview to find out who hired him
+drivers_license |>
+  rename(license_id = id) |>
+  right_join(person,
+            join_by(license_id)) |>
+    left_join(facebook_event_checkin,
+            join_by(id == person_id)) |>
+    mutate(date = ymd(date),
+           month = month(date),
+           year = year(date))|>
+    filter(hair_color == "red",
+         car_make == "Tesla",
+         car_model == "Model S",
+         height %in% c(65:67),
+         event_name == "SQL Symphony Concert",
+         month == 12,
+         year == 2017) |>
+  group_by(name, id) |>
+  summarize(event_name = n()) |>
+  filter(event_name == 3) |>
+  select(name, id)
 ```
 
 -   `right_join()`
+-   Lab 5
+-   Revisions: Renamed id to license_id so that I didn't have to combine by id.y in my second left join
+-   Mutated date to a ymd type to make calling month and year more efficient.
+-   Changed left join in driver's license and person to right join, in order to prioritize information from person dataset
 
 ```{r}
 #| label: wd-5-right
-
+#| label: JB_Employer
+# Using Jeremy Bowers interview to find out who hired him
+drivers_license |>
+  rename(license_id = id) |>
+  right_join(person,
+            join_by(license_id)) |>
+    left_join(facebook_event_checkin,
+            join_by(id == person_id)) |>
+    mutate(date = ymd(date),
+           month = month(date),
+           year = year(date))|>
+    filter(hair_color == "red",
+         car_make == "Tesla",
+         car_model == "Model S",
+         height %in% c(65:67),
+         event_name == "SQL Symphony Concert",
+         month == 12,
+         year == 2017) |>
+  group_by(name, id) |>
+  summarize(event_name = n()) |>
+  filter(event_name == 3) |>
+  select(name, id)
 ```
 
 -   `inner_join()`
 -   Lab 5
+-   Revisions: Created intermediate object to save information of suspect, later used in a semi join.
+-   Renamed id to license id so that in our join we don't get an id.y column for license id's.
+-   Used join by instead of by = c(" .. ")
+-   Removed excess filter
 
 ```{r}
 #| label: wd-5-inner
+#| label: Final-Suspect
 # Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
-final_database<-inner_join(drivers_license,
-                          person_final_filter,
-                          by=c("id"="license_id")) |>
-  filter(str_detect(plate_number,"H42W"))
-print(final_database)
+id_semi_join <- drivers_license |>
+  rename(license_id = id) |>
+  filter(license_id %in% c("173289", "423327")) |>
+filter(str_detect(plate_number,"H42W")) |>
+  inner_join(person, 
+             join_by(license_id))
 ```
 
 -   `full_join()`
@@ -362,52 +416,146 @@ print(final_database)
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
 
 -   `semi_join()`
+-   Lab 5
+-   Used intermediate object to use a semi join instead of a full join for transcript
 
 ```{r}
 #| label: wd-6-semi
-
+#| label: Interview_Final
+# Finding Jeremy Bower's interview 
+interview |>
+  semi_join(id_semi_join,
+            join_by(person_id == id)) |>
+pull(transcript)
 ```
 
 -   `anti_join()`
+-   Lab 5
+-   Revisions:
+-   Created intermediate object to filter where Miranda isn't, then used anti join to get her transcript
 
 ```{r}
 #| label: wd-6-anti
-
+not_miranda <- person |> 
+  filter(name != "Miranda Priestly")
+interview |> 
+  anti_join(not_miranda, 
+            join_by(person_id == id)
+            ) |> 
+  pull(transcript)
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
 
 -   `pivot_longer()`
 -   Lab 4 Q6
+-   Revisions: Use , instead of & for filter
+-   Use fct_reorder 2 in color directly instead of mutating outside, and include both study year and mcsa
+-   Changed geom_jitter to geom_point
+-   Use linewidth on geom_smooth
+-   Have correct scale_color_manual from discord
+-   Break up y axis according to scale 100-500
+-   Lowered size of text for x axis, and give overall graph aspect ratio of 1
+-   Deleted intermediate object and pipeline ggplot directly in code
 
 ```{r}
 #| label: wd-7-long
-ca_childcare_graph<-ca_childcare |>
-  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
-               names_to="Age",
-               values_to="mcsa_long",
-               names_repair="unique") |>
-  filter(study_year >=2008 & study_year<=2018)
-ggplot(ca_childcare_graph,
-mapping=(aes(x=study_year,
-            y=mcsa_long,
-            color=region))) +
-  geom_jitter()+
-  facet_wrap(~Age)+
-  geom_smooth(method="loess") +
-  theme(axis.text.x=element_text(angle=45, hjust=1))+
-  labs(title="Weekly Median Price for Center-Based Childcare ($)",
-       x="Study Year",
-       y=NULL,
-       color="California Region")+
-  theme_minimal()
+#| label: recreate-plot
+ca_childcare |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "Age",
+               values_to = "mcsa_long",
+               names_repair = "unique") |>
+  filter(study_year >= 2008, study_year <= 2018) |>
+ggplot(mapping = (aes(x = study_year,
+                      y = mcsa_long,
+                      color = fct_reorder2(.f = region, 
+                                           .x = study_year, 
+                                           .y = mcsa_long, 
+                                           .desc = TRUE)
+                      )
+                  )
+       ) +
+  geom_point(size = 1) +
+  #Found as_labeller code through help panel in R Studio. Searched up facet_wrap and the labeller was a part of the sample code.
+  facet_wrap(~Age,
+             labeller = as_labeller(c("mc_infant" = "Infant",
+                                      "mc_toddler" = "Toddler",
+                                      "mc_preschool" = "Preschool")
+                                    )
+             ) +
+  # Linewidth came from r error message that said to use it instead of size
+  geom_smooth(linewidth = 0.5,
+              method = "loess") +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = NULL,
+       color = "California Region") +
+  theme_bw() +
+  #Found in discord for lab 4, and on the r help section
+  scale_color_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(10)) +
+  #Found this in the r help section. scale_variable_continous breaks up a label by a numerical factor (in this case 2), and specifies how long the axis should be. Limits explicitly state limits in case a coder wants to go past the default limits set by the variable
+  scale_x_continuous(breaks = seq(2008, 2018, 
+                                  by = 2)
+                     ) +
+  scale_y_continuous(limits = c(100, 500), 
+                     breaks = seq(100, 500, 
+                                  by = 100)
+                     ) +
+  theme(axis.text.x = element_text(size = 6),
+        axis.title.x = element_text(size = 10),
+        #Found in discord for lab 4
+        aspect.ratio = 1 
+        ) 
 ```
 
 -   `pivot_wider()`
+-   Lab 9 Q7
+-   Revisions: Changed Sum to Means on summary statement
+-   Changed title to include what each part of the table represents
+-   Changed colors to be more viewer friendly, added italics
+-   Added border to table
 
 ```{r}
 #| label: wd-7-wide
-
+#| label: table-of-simulated Means
+all_simulations |>
+    group_by (n) |>
+    summarize(mean_simulated_mean = mean(simulated_means), 
+              .groups = "drop") |>
+  pivot_wider(names_from = n,
+              values_from = mean_simulated_mean) |>
+  gt() |>
+  tab_header(
+    title = "Simulated Means of Chi Sq Test",
+    subtitle = "Degrees of Freedom = 10, # of Samples on top, Means on the Bottom"
+    ) |>
+  #Found in r help section for gt
+  tab_style(
+    style = list(cell_borders(sides = "all",
+                              color = "black",
+                              style = "solid",
+                              weight = px(2))
+                 ),
+    #I know we're not supposed to use list, but the list operator was the only one that allowed me to put both locations in without calling the entire border chunk again.
+    location = list(cells_column_labels(),
+                 cells_body())
+    ) |>
+  tab_style(
+    style = list(
+      cell_fill(color = "grey"),
+      cell_text(weight = "bold",
+                font = "calibri")),
+    location = cells_column_labels()
+    ) |>
+  tab_style(
+    style = list(cell_fill(color = "steelblue"),
+                 cell_text(color = "White",
+                           font = "calibri")),
+    location = cells_body()
+    )
 ```
 
 ## Reproducibility
@@ -420,86 +568,203 @@ I've done this in the following provided assignments:
 
 -   Example of **ggplot2** plotting
 -   Lab 4 Q6
+-   Revisions: Use , instead of & for filter
+-   Use fct_reorder 2 in color directly instead of mutating outside, and include both study year and mcsa
+-   Changed geom_jitter to geom_point
+-   Use linewidth on geom_smooth
+-   Have correct scale_color_manual from discord
+-   Break up y axis according to scale 100-500
+-   Lowered size of text for x axis, and give overall graph aspect ratio of 1
+-   Deleted intermediate object and pipeline ggplot directly in code
 
 ```{r}
 #| label: r-2-1
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-ca_childcare_graph<-ca_childcare |>
-  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
-               names_to="Age",
-               values_to="mcsa_long",
-               names_repair="unique") |>
-  filter(study_year >=2008 & study_year<=2018)
-ggplot(ca_childcare_graph,
-mapping=(aes(x=study_year,
-            y=mcsa_long,
-            color=region))) +
-  geom_jitter()+
-  facet_wrap(~Age)+
-  geom_smooth(method="loess") +
-  theme(axis.text.x=element_text(angle=45, hjust=1))+
-  labs(title="Weekly Median Price for Center-Based Childcare ($)",
-       x="Study Year",
-       y=NULL,
-       color="California Region")+
-  theme_minimal()
+#| label: recreate-plot
+ca_childcare |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "Age",
+               values_to = "mcsa_long",
+               names_repair = "unique") |>
+  filter(study_year >= 2008, study_year <= 2018) |>
+ggplot(mapping = (aes(x = study_year,
+                      y = mcsa_long,
+                      color = fct_reorder2(.f = region, 
+                                           .x = study_year, 
+                                           .y = mcsa_long, 
+                                           .desc = TRUE)
+                      )
+                  )
+       ) +
+  geom_point(size = 1) +
+  #Found as_labeller code through help panel in R Studio. Searched up facet_wrap and the labeller was a part of the sample code.
+  facet_wrap(~Age,
+             labeller = as_labeller(c("mc_infant" = "Infant",
+                                      "mc_toddler" = "Toddler",
+                                      "mc_preschool" = "Preschool")
+                                    )
+             ) +
+  # Linewidth came from r error message that said to use it instead of size
+  geom_smooth(linewidth = 0.5,
+              method = "loess") +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = NULL,
+       color = "California Region") +
+  theme_bw() +
+  #Found in discord for lab 4, and on the r help section
+  scale_color_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(10)) +
+  #Found this in the r help section. scale_variable_continous breaks up a label by a numerical factor (in this case 2), and specifies how long the axis should be. Limits explicitly state limits in case a coder wants to go past the default limits set by the variable
+  scale_x_continuous(breaks = seq(2008, 2018, 
+                                  by = 2)
+                     ) +
+  scale_y_continuous(limits = c(100, 500), 
+                     breaks = seq(100, 500, 
+                                  by = 100)
+                     ) +
+  theme(axis.text.x = element_text(size = 6),
+        axis.title.x = element_text(size = 10),
+        #Found in discord for lab 4
+        aspect.ratio = 1 
+        ) 
 ```
 
 -   Example of **dplyr** pipeline
--   Challenge 3 Q1
+-   Lab 9 Q7
+-   Revisions: Changed Sum to Means on summary statement
+-   Changed title to include what each part of the table represents
+-   Changed colors to be more viewer friendly, added italics
+-   Added border to table
 
 ```{r}
 #| label: r-2-2
-teacher_eval_compare <- teacher_eval |>
-  filter(question_no==903)|>
-  mutate(SET_level=if_else(SET_score_avg>=4, 
-                           "Excellent", 
-                           "Standard"),
-         sen_level=if_else(seniority<=4,
-                             "Junior",
-                           "Senior"))|>
-    select(
-    course_id,
-    SET_level,
-    sen_level
-         )
+#| label: table-of-simulated Means
+all_simulations |>
+    group_by (n) |>
+    summarize(mean_simulated_mean = mean(simulated_means), 
+              .groups = "drop") |>
+  pivot_wider(names_from = n,
+              values_from = mean_simulated_mean) |>
+  gt() |>
+  tab_header(
+    title = "Simulated Means of Chi Sq Test",
+    subtitle = "Degrees of Freedom = 10, # of Samples on top, Means on the Bottom"
+    ) |>
+  #Found in r help section for gt
+  tab_style(
+    style = list(cell_borders(sides = "all",
+                              color = "black",
+                              style = "solid",
+                              weight = px(2))
+                 ),
+    #I know we're not supposed to use list, but the list operator was the only one that allowed me to put both locations in without calling the entire border chunk again.
+    location = list(cells_column_labels(),
+                 cells_body())
+    ) |>
+  tab_style(
+    style = list(
+      cell_fill(color = "grey"),
+      cell_text(weight = "bold",
+                font = "calibri")),
+    location = cells_column_labels()
+    ) |>
+  tab_style(
+    style = list(cell_fill(color = "steelblue"),
+                 cell_text(color = "White",
+                           font = "calibri")),
+    location = cells_body()
+    )
 ```
 
 -   Example of function formatting
+-   Lab 9 Q1
 
 ```{r}
 #| label: r-2-3
-
+#| label: function-simulation-for-random-babies
+# Creating Function
+randomBabies <- function(n = 4) {
+  babies_data <- tibble(babies = 1:n,
+                        match = sample (1:n,
+                                        size = n,
+                                        replace = FALSE)
+                        )
+  matched_babies <- babies_data |>
+    filter(babies == match) |>
+    nrow()
+  
+  return(matched_babies)
+}
+#Simulating data using function
+results <- map_int(.x = 1:1000,
+                   .f = ~ randomBabies(n = 4)
+                   )
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
 
 -   Example -- any context
--   Lab 3 Q10
+-   Lab 3 Q11
+-   Use slice min and slice max to show ties and to use modern tools
 
 ```{r}
 #| label: r-3-example
-  high_low <- teacher_evals_clean |>
+#| label: one-year-experience-failing-students
+# code chunk for Q11
+failing_oneyear <- teacher_evals_clean |>
   select(teacher_id,
-         question_no,
-         course_id,
-         SET_score_avg) |>
-  filter(question_no==901)|>
-  group_by(teacher_id)|>
-  summarize(mean_id=mean(SET_score_avg, na.rm=TRUE))|>
-  arrange(mean_id)|>
-  slice(c(1,n()))
-  
-print(high_low)
+         seniority,
+         percent_failed_cur) |>
+  filter(seniority == 1) |>
+  group_by(teacher_id) |>
+  summarize(mean_fail = mean(percent_failed_cur, 
+                             na.rm=TRUE)
+            )
+failing_oneyear_max <- failing_oneyear |>
+  slice_max(mean_fail)
+failing_oneyear_min <- failing_oneyear |>
+  slice_min(mean_fail)
+print(failing_oneyear_max)
+print(failing_oneyear_min)
 ```
 
 -   Example of function stops
+-   Lab 7 Q8
+-   Now use all_of in mutate
 
 ```{r}
 #| label: r-3-function-stops
-
+#| label: rescale-data-frame-function
+# Creating function
+rescale_01 <- function(x) {
+  stopifnot(is.numeric(x), 
+            length(x) > 1
+            )
+  range_vals <- range(x, 
+                      na.rm=TRUE)
+  return(
+    (x - range_vals[1]) / (range_vals[2] - range_vals[1]
+                           )
+    )
+}
+#Function Checks
+rescale_column <- function(df, group_vars) {
+if (!is.data.frame(df)) {
+    stop("Please provide a data frame input for the df argument")
+}  
+if (!all(group_vars %in% colnames(df))) {
+    stop("The columns selected must be in our data frame")
+} 
+  df |>
+    #Found all of through online research, seems that all of is the most modern syntax for across, as it makes the code stronger against changes in variable names. Reference here: https://dplyr.tidyverse.org/reference/across.html
+  mutate(
+    across(all_of(group_vars), 
+           rescale_01, 
+           .names = "{.col}_scaled"
+           )
+    )
+}
 ```
 
 ## Data Visualization & Summarization
@@ -507,336 +772,889 @@ print(high_low)
 **DVS-1: I can create visualizations for a *variety* of variable types (e.g., numeric, character, factor, date)**
 
 -   at least two numeric variables
--   Lab 4 Q6
+-   Lab 4 Q7
+-   Revisions: Removed extra long title and added part to subtitle
+-   Added dollar signs on the x and y axis using label_dollar
+-   Added a manual axis on the x axis to avoid cutting off values
 
 ```{r}
 #| label: dvs-1-num
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-ca_childcare_graph<-ca_childcare |>
-  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
-               names_to="Age",
-               values_to="mcsa_long",
-               names_repair="unique") |>
-  filter(study_year >=2008 & study_year<=2018)
-ggplot(ca_childcare_graph,
-mapping=(aes(x=study_year,
-            y=mcsa_long,
-            color=region))) +
-  geom_jitter()+
-  facet_wrap(~Age)+
-  geom_smooth(method="loess") +
-  theme(axis.text.x=element_text(angle=45, hjust=1))+
-  labs(title="Weekly Median Price for Center-Based Childcare ($)",
-       x="Study Year",
-       y=NULL,
-       color="California Region")+
-  theme_minimal()
-
+#| label: scatterplot-median-income-vs-childcare-cost
+ggplot(ca_childcare,
+       mapping = (aes(x = mhi_2018,
+                      y = mc_infant)
+                  )
+       ) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x = "Median Household Income (Expressed in 2018 Dollars)",
+       y = NULL,
+       title = "Scatterplot of median household income compared to median weekly price (Y) for center-based childcare for infant in California",
+       subtitle = "Linear regression line in blue") +
+  #Found through r help package,scale_variable_continous breaks up a label by a numerical factor and specifies how long the axis should be. Limits explicitly state limits in case a coder wants to go past the default limits set by the variable. Label dollar is used to add dollar signs to both the x and y axis. 
+theme(plot.title = element_text(hjust = 0.5, size = 8,),
+      plot.subtitle = element_text(size = 8)
+      ) + 
+  scale_x_continuous(labels = label_dollar(),
+                     limits = c(35000, 120000), 
+                     breaks = seq(0, 120000, 
+                                  by = 20000)
+                     ) +
+  scale_y_continuous(labels = label_dollar())
 ```
 
 -   at least one numeric variable and one categorical variable
--   Challenge 3 Q2
+-   Lab 7 Q2
+-   Revisions:
+-   Changed both trips and years to factors
+-   Used fct_recode for trips to make the graph say Trip 1 and Trip 2
+-   Added percent symbols to the legend from the scales package
+-   Rotated and shrank size of x axis text
+-   Used position dodge on geom_text to fix issue where section was distributed weirdly.
+-   Added third color for midpoint (at 0.125 so that it could be used in the plot)
 
 ```{r}
 #| label: dvs-2-num-cat
-library(dplyr)
-library(ggplot2)
-#| label: recreate-plot
-# code chunk for Q13
-ggplot(data=teacher_eval_compare,
-  mapping=aes(x=sen_level,
-              fill=SET_level))+
-  scale_fill_manual(values=c("Excellent"="blue","Standard"="gold"))+
-  theme_bw()+
-  labs(x="Seniority of Instructor",
-       y=NULL,
-       title="Number of sections")+
-  geom_bar()
+#| label: visual-of-missing-values-over-time
+BlackfootFish |>
+  group_by(year, 
+           section, 
+           trip) |>
+  mutate(missing_values = sum(if_any(everything(),
+                                     is.na)
+                              ),
+         total=n(),
+         percent_missing_values = (missing_values/total),
+         trip = as.factor(trip),
+         trip = fct_recode(trip,
+                           "Trip 1" = "1",
+                           "Trip 2" = "2"),
+         year = as.factor(year)
+         ) |>
+ggplot(BlackfootFish,
+       mapping = aes(x = year, 
+                   y = section,
+                   fill = percent_missing_values)
+       ) +
+  # While this may seem unnecessary, setting us a width of 0 gives a plot where values on the x axis are separated as opposed to being smushed together, while also making sure that the section values don't misalign.
+  geom_tile(position = position_dodge(width = 0)) +
+  facet_wrap(~ trip) +
+  #Found this in the r help section, fill refers to the percent of missing values.
+  scale_fill_gradient2(low = "skyblue", 
+                       mid = "blue",
+                       high = "midnightblue",
+                       midpoint = 0.125,
+                       name = "Percent Missing (0 - 100)",
+                       #Found on label package info on r help tab
+                       labels = label_percent()
+                       ) +
+  labs(x = "Year",
+       y = NULL,
+       title = "Heatmap of missing values vs years, sections (y axis), and trips"
+       ) +
+  theme_dark() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   size = 6)
+        ) 
 ```
 
 -   at least two categorical variables
+-   Challenge 3 Q2
+-   Now have a intermediate object for geom_text
+-   Added geom_text along with filters
+-   Changed colors to steel blue and orange 3
 
 ```{r}
 #| label: dvs-2-cat
+#| label: recreate-plot
+# code chunk for Q13
+#Inspiration came from plot shown on slides for week 7 exemplary plots, the annotate_text helped to learn how to use geom_text
+annotate_text <- teacher_eval_compare |>
+  group_by(sen_level, 
+           SET_level) |>
+  summarise(count = n(), 
+            .groups = "drop")
+
+ggplot(data = teacher_eval_compare, 
+       mapping = aes(x = sen_level, 
+                     fill = SET_level)
+       ) + 
+  scale_fill_manual(values = c("Excellent" = "steelblue", 
+                               "Standard" = "orange3")
+                    ) + 
+  theme_bw() + 
+  labs(x="Seniority of Instructor", 
+       y=NULL, 
+       title="Bar Plot of Seniority of Instructor vs SET level"
+       ) + 
+  geom_bar(stat="count") +
+  geom_text(data=annotate_text, 
+            aes(x = sen_level, 
+                y = count, 
+                #Found paste help in r help section on paste
+                label = paste("Count:", count)),
+            #Found in r help section on geom_text, vjust adjusts height to the top of the bar
+            position = position_stack(vjust = 0.5),
+            fontface = "bold",
+            size = 3,
+            color = "white")
 
 ```
 
 -   dates (timeseries plot)
+-   Lab 4 Q6
+-   Revisions: Use , instead of & for filter
+-   Use fct_reorder 2 in color directly instead of mutating outside, and include both study year and mcsa
+-   Changed geom_jitter to geom_point
+-   Use linewidth on geom_smooth
+-   Have correct scale_color_manual from discord
+-   Break up y axis according to scale 100-500
+-   Lowered size of text for x axis, and give overall graph aspect ratio of 1
+-   Deleted intermediate object and pipeline ggplot directly in code
 
 ```{r}
 #| label: dvs-2-date
-
+#| label: recreate-plot
+ca_childcare |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "Age",
+               values_to = "mcsa_long",
+               names_repair = "unique") |>
+  filter(study_year >= 2008, study_year <= 2018) |>
+ggplot(mapping = (aes(x = study_year,
+                      y = mcsa_long,
+                      color = fct_reorder2(.f = region, 
+                                           .x = study_year, 
+                                           .y = mcsa_long, 
+                                           .desc = TRUE)
+                      )
+                  )
+       ) +
+  geom_point(size = 1) +
+  #Found as_labeller code through help panel in R Studio. Searched up facet_wrap and the labeller was a part of the sample code.
+  facet_wrap(~Age,
+             labeller = as_labeller(c("mc_infant" = "Infant",
+                                      "mc_toddler" = "Toddler",
+                                      "mc_preschool" = "Preschool")
+                                    )
+             ) +
+  # Linewidth came from r error message that said to use it instead of size
+  geom_smooth(linewidth = 0.5,
+              method = "loess") +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = NULL,
+       color = "California Region") +
+  theme_bw() +
+  #Found in discord for lab 4, and on the r help section
+  scale_color_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(10)) +
+  #Found this in the r help section. scale_variable_continous breaks up a label by a numerical factor (in this case 2), and specifies how long the axis should be. Limits explicitly state limits in case a coder wants to go past the default limits set by the variable
+  scale_x_continuous(breaks = seq(2008, 2018, 
+                                  by = 2)
+                     ) +
+  scale_y_continuous(limits = c(100, 500), 
+                     breaks = seq(100, 500, 
+                                  by = 100)
+                     ) +
+  theme(axis.text.x = element_text(size = 6),
+        axis.title.x = element_text(size = 10),
+        #Found in discord for lab 4
+        aspect.ratio = 1 
+        ) 
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
 
 -   I can ensure people don't tilt their head
--   Lab 4 Q6
+-   Lab 7 Q2
+-   Revisions:
+-   Changed both trips and years to factors
+-   Used fct_recode for trips to make the graph say Trip 1 and Trip 2
+-   Added percent symbols to the legend from the scales package
+-   Rotated and shrank size of x axis text
+-   Used position dodge on geom_text to fix issue where section was distributed weirdly
+-   Added midpoint color (at 0.125 so that it could be seen)
 
 ```{r}
 #| label: dvs-2-1
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-ca_childcare_graph<-ca_childcare |>
-  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
-               names_to="Age",
-               values_to="mcsa_long",
-               names_repair="unique") |>
-  filter(study_year >=2008 & study_year<=2018)
-ggplot(ca_childcare_graph,
-mapping=(aes(x=study_year,
-            y=mcsa_long,
-            color=region))) +
-  geom_jitter()+
-  facet_wrap(~Age)+
-  geom_smooth(method="loess") +
-  theme(axis.text.x=element_text(angle=45, hjust=1))+
-  labs(title="Weekly Median Price for Center-Based Childcare ($)",
-       x="Study Year",
-       y=NULL,
-       color="California Region")+
-  theme_minimal()
+#| label: visual-of-missing-values-over-time
+BlackfootFish |>
+  group_by(year, 
+           section, 
+           trip) |>
+  mutate(missing_values = sum(if_any(everything(),
+                                     is.na)
+                              ),
+         total=n(),
+         percent_missing_values = (missing_values/total),
+         trip = as.factor(trip),
+         trip = fct_recode(trip,
+                           "Trip 1" = "1",
+                           "Trip 2" = "2"),
+         year = as.factor(year)
+         ) |>
+ggplot(BlackfootFish,
+       mapping = aes(x = year, 
+                   y = section,
+                   fill = percent_missing_values)
+       ) +
+  # While this may seem unnecessary, setting us a width of 0 gives a plot where values on the x axis are separated as opposed to being smushed together, while also making sure that the section values don't misalign.
+  geom_tile(position = position_dodge(width = 0)) +
+  facet_wrap(~ trip) +
+  #Found this in the r help section, fill refers to the percent of missing values.
+  scale_fill_gradient2(low = "skyblue", 
+                       mid = "blue",
+                       high = "midnightblue",
+                       midpoint = 0.125,
+                       name = "Percent Missing (0 - 100)",
+                       #Found on label package info on r help tab
+                       labels = label_percent()
+                       ) +
+  labs(x = "Year",
+       y = NULL,
+       title = "Heatmap of missing values vs years, sections (y axis), and trips"
+       ) +
+  theme_dark() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   size = 6)
+        ) 
 ```
 
 -   I can modify the text in my plot to be more readable
--   Challenge 3 Q2
+-   Lab 4 Q6
+-   Revisions: Use , instead of & for filter
+-   Use fct_reorder 2 in color directly instead of mutating outside, and include both study year and mcsa
+-   Changed geom_jitter to geom_point
+-   Use linewidth on geom_smooth
+-   Have correct scale_color_manual from discord
+-   Break up y axis according to scale 100-500
+-   Lowered size of text for x axis, and give overall graph aspect ratio of 1
+-   Deleted intermediate object and pipeline ggplot directly
 
 ```{r}
 #| label: dvs-2-2
-library(dplyr)
-library(ggplot2)
 #| label: recreate-plot
-# code chunk for Q13
-ggplot(data=teacher_eval_compare,
-  mapping=aes(x=sen_level,
-              fill=SET_level))+
-  scale_fill_manual(values=c("Excellent"="blue","Standard"="gold"))+
-  theme_bw()+
-  labs(x="Seniority of Instructor",
-       y=NULL,
-       title="Number of sections")+
-  geom_bar()
+ca_childcare |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "Age",
+               values_to = "mcsa_long",
+               names_repair = "unique") |>
+  filter(study_year >= 2008, study_year <= 2018) |>
+ggplot(mapping = (aes(x = study_year,
+                      y = mcsa_long,
+                      color = fct_reorder2(.f = region, 
+                                           .x = study_year, 
+                                           .y = mcsa_long, 
+                                           .desc = TRUE)
+                      )
+                  )
+       ) +
+  geom_point(size = 1) +
+  #Found as_labeller code through help panel in R Studio. Searched up facet_wrap and the labeller was a part of the sample code.
+  facet_wrap(~Age,
+             labeller = as_labeller(c("mc_infant" = "Infant",
+                                      "mc_toddler" = "Toddler",
+                                      "mc_preschool" = "Preschool")
+                                    )
+             ) +
+  # Linewidth came from r error message that said to use it instead of size
+  geom_smooth(linewidth = 0.5,
+              method = "loess") +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = NULL,
+       color = "California Region") +
+  theme_bw() +
+  #Found in discord for lab 4, and on the r help section
+  scale_color_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(10)) +
+  #Found this in the r help section. scale_variable_continous breaks up a label by a numerical factor (in this case 2), and specifies how long the axis should be. Limits explicitly state limits in case a coder wants to go past the default limits set by the variable
+  scale_x_continuous(breaks = seq(2008, 2018, 
+                                  by = 2)
+                     ) +
+  scale_y_continuous(limits = c(100, 500), 
+                     breaks = seq(100, 500, 
+                                  by = 100)
+                     ) +
+  theme(axis.text.x = element_text(size = 6),
+        axis.title.x = element_text(size = 10),
+        #Found in discord for lab 4
+        aspect.ratio = 1 
+        ) 
 ```
 
 -   I can reorder my legend to align with the colors in my plot
 -   Lab 4 Q6
+-   Revisions: Use , instead of & for filter
+-   Use fct_reorder 2 in color directly instead of mutating outside, and include both study year and mcsa
+-   Changed geom_jitter to geom_point
+-   Use linewidth on geom_smooth
+-   Have correct scale_color_manual from discord
+-   Break up y axis according to scale 100-500
+-   Lowered size of text for x axis, and give overall graph aspect ratio of 1
 
 ```{r}
 #| label: dvs-2-3
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-ca_childcare_graph<-ca_childcare |>
-  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
-               names_to="Age",
-               values_to="mcsa_long",
-               names_repair="unique") |>
-  filter(study_year >=2008 & study_year<=2018)
+#| label: recreate-plot
+ca_childcare_graph <- ca_childcare |>
+  pivot_longer(cols = c(mc_infant,
+                        mc_toddler,
+                        mc_preschool),
+               names_to = "Age",
+               values_to = "mcsa_long",
+               names_repair = "unique") |>
+  filter(study_year >= 2008, study_year <= 2018) 
 ggplot(ca_childcare_graph,
-mapping=(aes(x=study_year,
-            y=mcsa_long,
-            color=region))) +
-  geom_jitter()+
-  facet_wrap(~Age)+
-  geom_smooth(method="loess") +
-  theme(axis.text.x=element_text(angle=45, hjust=1))+
-  labs(title="Weekly Median Price for Center-Based Childcare ($)",
-       x="Study Year",
-       y=NULL,
-       color="California Region")+
-  theme_minimal()
+       mapping=(aes(x = study_year,
+                    y = mcsa_long,
+                    color = fct_reorder2(.f = region, 
+                                         .x = study_year, 
+                                         .y = mcsa_long, 
+                                         .desc = TRUE)
+            )
+         )
+) +
+  geom_point(size = 1) +
+  #Found as_labeller code through help panel in R Studio. Searched up facet_wrap and the labeller was a part of the sample code.
+  facet_wrap(~Age,
+             labeller = as_labeller(c(
+               "mc_infant" = "Infant",
+               "mc_toddler" = "Toddler",
+               "mc_preschool" = "Preschool")
+               )
+             ) +
+  # Linewidth came from r error message that said to use it instead of size
+  geom_smooth(linewidth = 0.5,
+              method = "loess") +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = NULL,
+       color = "California Region") +
+  theme_bw() +
+  #Found in discord for lab 4, and on the r help section
+  scale_color_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(10)) +
+  #Found this in the r help section. scale_variable_continous breaks up a label by a numerical factor (in this case 2), and specifies how long the axis should be. Limits explicitly state limits in case a coder wants to go past the default limits set by the variable
+  scale_x_continuous(breaks = seq(2008, 2018, 
+                                  by = 2)
+                     ) +
+  scale_y_continuous(limits = c(100, 500), 
+                     breaks = seq(100, 500, 
+                                  by = 100)
+                     ) +
+  theme(axis.text.x = element_text(size = 6),
+        axis.title.x = element_text(size = 10),
+        #Found in discord for lab 4
+        aspect.ratio = 1 
+        ) 
 ```
 
 **DVS-3: I show creativity in my visualizations**
 
 -   I can use non-standard colors
--   Challenge 3 Q2
+-   Lab 7 Q2
+-   Revisions:
+-   Changed both trips and years to factors
+-   Used fct_recode for trips to make the graph say Trip 1 and Trip 2
+-   Added percent symbols to the legend from the scales package
+-   Rotated and shrank size of x axis text
+-   Used position dodge on geom_text to fix issue where section was distributed weirdly
+-   Added midpoint color (at 0.125 so that it could be seen)
 
 ```{r}
 #| label: dvs-3-1
-library(dplyr)
-library(ggplot2)
-#| label: recreate-plot
-# code chunk for Q13
-ggplot(data=teacher_eval_compare,
-  mapping=aes(x=sen_level,
-              fill=SET_level))+
-  scale_fill_manual(values=c("Excellent"="blue","Standard"="gold"))+
-  theme_bw()+
-  labs(x="Seniority of Instructor",
-       y=NULL,
-       title="Number of sections")+
-  geom_bar()
+#| label: visual-of-missing-values-over-time
+BlackfootFish |>
+  group_by(year, 
+           section, 
+           trip) |>
+  mutate(missing_values = sum(if_any(everything(),
+                                     is.na)
+                              ),
+         total=n(),
+         percent_missing_values = (missing_values/total),
+         trip = as.factor(trip),
+         trip = fct_recode(trip,
+                           "Trip 1" = "1",
+                           "Trip 2" = "2"),
+         year = as.factor(year)
+         ) |>
+ggplot(BlackfootFish,
+       mapping = aes(x = year, 
+                   y = section,
+                   fill = percent_missing_values)
+       ) +
+  # While this may seem unnecessary, setting us a width of 0 gives a plot where values on the x axis are separated as opposed to being smushed together, while also making sure that the section values don't misalign.
+  geom_tile(position = position_dodge(width = 0)) +
+  facet_wrap(~ trip) +
+  #Found this in the r help section, fill refers to the percent of missing values.
+  scale_fill_gradient2(low = "skyblue", 
+                       mid = "blue",
+                       high = "midnightblue",
+                       midpoint = 0.125,
+                       name = "Percent Missing (0 - 100)",
+                       #Found on label package info on r help tab
+                       labels = label_percent()
+                       ) +
+  labs(x = "Year",
+       y = NULL,
+       title = "Heatmap of missing values vs years, sections (y axis), and trips"
+       ) +
+  theme_dark() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   size = 6)
+        ) 
 ```
 
 -   I can use annotations
--   Lab 5
+-   Challenge 3 Q2
+-   Now have a intermediate object for geom_text
+-   Added geom_text along with filters
+-   Changed colors to steel blue and orange 3
 
 ```{r}
 #| label: dvs-3-2
-# Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
-final_database<-inner_join(drivers_license,
-                          person_final_filter,
-                          by=c("id"="license_id")) |>
-  filter(str_detect(plate_number,"H42W"))
-print(final_database)
+#| label: recreate-plot
+# code chunk for Q13
+#Inspiration came from plot shown on slides for week 7 exemplary plots, the annotate_text helped to learn how to use geom_text
+annotate_text <- teacher_eval_compare |>
+  group_by(sen_level, 
+           SET_level) |>
+  summarise(count = n(), 
+            .groups = "drop")
+
+ggplot(data = teacher_eval_compare, 
+       mapping = aes(x = sen_level, 
+                     fill = SET_level)
+       ) + 
+  scale_fill_manual(values = c("Excellent" = "steelblue", 
+                               "Standard" = "orange3")
+                    ) + 
+  theme_bw() + 
+  labs(x="Seniority of Instructor", 
+       y=NULL, 
+       title="Bar Plot of Seniority of Instructor vs SET level"
+       ) + 
+  geom_bar(stat = "count") +
+  geom_text(data = annotate_text, 
+            aes(x = sen_level, 
+                y = count, 
+                #Found paste help in r help section on paste
+                label = paste("Count:", count)),
+            #Found in r help section on geom_text, vjust adjusts height to the top of the bar
+            position = position_stack(vjust = 0.5),
+            fontface = "bold",
+            size = 3,
+            color = "white")
+
 ```
 
 -   I can be creative...
--   Challenge 3 Q2
+-   Lab 7 Q2
+-   Revisions:
+-   Changed both trips and years to factors
+-   Used fct_recode for trips to make the graph say Trip 1 and Trip 2
+-   Added percent symbols to the legend from the scales package
+-   Rotated and shrank size of x axis text
+-   Used position dodge on geom_text to fix issue where section was distributed weirdly
+-   Added midpoint color (at 0.125 so that it could be seen)
 
 ```{r}
 #| label: dvs-3-3
-library(dplyr)
-library(ggplot2)
-#| label: recreate-plot
-# code chunk for Q13
-ggplot(data=teacher_eval_compare,
-  mapping=aes(x=sen_level,
-              fill=SET_level))+
-  scale_fill_manual(values=c("Excellent"="blue","Standard"="gold"))+
-  theme_bw()+
-  labs(x="Seniority of Instructor",
-       y=NULL,
-       title="Number of sections")+
-  geom_bar()
+#| label: visual-of-missing-values-over-time
+BlackfootFish |>
+  group_by(year, 
+           section, 
+           trip) |>
+  mutate(missing_values = sum(if_any(everything(),
+                                     is.na)
+                              ),
+         total=n(),
+         percent_missing_values = (missing_values/total),
+         trip = as.factor(trip),
+         trip = fct_recode(trip,
+                           "Trip 1" = "1",
+                           "Trip 2" = "2"),
+         year = as.factor(year)
+         ) |>
+ggplot(BlackfootFish,
+       mapping = aes(x = year, 
+                   y = section,
+                   fill = percent_missing_values)
+       ) +
+  # While this may seem unnecessary, setting us a width of 0 gives a plot where values on the x axis are separated as opposed to being smushed together, while also making sure that the section values don't misalign.
+  geom_tile(position = position_dodge(width = 0)) +
+  facet_wrap(~ trip) +
+  #Found this in the r help section, fill refers to the percent of missing values.
+  scale_fill_gradient2(low = "skyblue", 
+                       mid = "blue",
+                       high = "midnightblue",
+                       midpoint = 0.125,
+                       name = "Percent Missing (0 - 100)",
+                       #Found on label package info on r help tab
+                       labels = label_percent()
+                       ) +
+  labs(x = "Year",
+       y = NULL,
+       title = "Heatmap of missing values vs years, sections (y axis), and trips"
+       ) +
+  theme_dark() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   size = 6)
+        ) 
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
 
 -   Example using `summarize()`
--   Lab 4 Q4
+-   Lab 3 Q6
+-   Deleted intermediate object
 
 ```{r}
 #| label: dvs-4-summarize
-ca_childcare|>
-  select(
-    region,
-    study_year,
-    mhi_2018
-    ) |>
-  filter(study_year==2008 | study_year==2018)|>
-  group_by(region) |>
-  summarize(
-    mhi_2008 = median(mhi_2018[study_year == 2008], na.rm = TRUE), 
-    mhi_2018 = median(mhi_2018[study_year == 2018], na.rm = TRUE)) |>
-  arrange(desc(mhi_2018)) |>
-  arrange(desc(mhi_2008))
+#| label: unique-courses
+# code chunk for Q6
+teacher_evals_clean |>
+  summarize(unique_teachers = n_distinct(teacher_id),
+            unique_courses = n_distinct(course_id)
+            )
 ```
 
 -   Example using `across()`
+-   Lab 7 Q1
+-   Revisions: Removed the filter that only showed variables with missing values
+-   Instead of printing table, now use knitr::kable()
+-   Changed Axis title to Missing Count instead of Missing_Count
 
 ```{r}
 #| label: dvs-4-across
-
+#| label: find-missing-values
+# Found sum(is.na) through the textbook, where this counts how many times NA values appear in rows. 
+missing_table <- BlackfootFish |> 
+  summarise(across(everything(), 
+                   ~ sum(is.na(.)
+                         )
+                   )
+            ) |> 
+  pivot_longer(everything(), 
+               names_to = "Variable", 
+               values_to = "Missing Count") 
+missing_table |>
+  knitr::kable()
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
 
 -   Example 1
--   Lab 3 Q8
+-   Lab 3 Q11
+-   Added slice min and max at the bottom to show ties and use modern functions
 
 ```{r}
 #| label: dvs-5-1
-instructor_data <- teacher_evals_clean |>
-  select(academic_degree,
+#| label: one-year-experience-failing-students
+# code chunk for Q11
+failing_oneyear <- teacher_evals_clean |>
+  select(teacher_id,
          seniority,
-         sex,
-         teacher_id) 
-instructor_summary<-instructor_data |>
-  summarize(
-    distinct_degrees=n_distinct(academic_degree),
-    distinct_seniority=n_distinct(seniority),
-    gender_distribution=n_distinct(sex),
-    male_count=n_distinct(teacher_id[sex=="male"]),
-    female_count=n_distinct(teacher_id[sex=="female"]),
-    total_instructors=n_distinct(teacher_id)) 
-print(instructor_summary)
+         percent_failed_cur) |>
+  filter(seniority == 1) |>
+  group_by(teacher_id) |>
+  summarize(mean_fail = mean(percent_failed_cur, 
+                             na.rm=TRUE)
+            )
+failing_oneyear_max <- failing_oneyear |>
+  slice_max(mean_fail)
+failing_oneyear_min <- failing_oneyear |>
+  slice_min(mean_fail)
+print(failing_oneyear_max)
+print(failing_oneyear_min)
 ```
 
 -   Example 2
--   Lab 3 Q6
+-   Lab 9 Q7
+-   Revisions: Changed Sum to Means on summary statement
+-   Changed title to include what each part of the table represents
+-   Changed colors to be more viewer friendly, added italics
+-   Added border to table
 
 ```{r}
 #| label: dvs-5-2
-unique_counts<- teacher_evals_clean |>
-  summarize (unique_teachers=n_distinct(teacher_id),
-             unique_courses=n_distinct(course_id),
-             .group="group")
-print(unique_counts)
+#| label: table-of-simulated Means
+all_simulations |>
+    group_by (n) |>
+    summarize(mean_simulated_mean = mean(simulated_means), 
+              .groups = "drop") |>
+  pivot_wider(names_from = n,
+              values_from = mean_simulated_mean) |>
+  gt() |>
+  tab_header(
+    title = "Simulated Means of Chi Sq Test",
+    subtitle = "Degrees of Freedom = 10, # of Samples on top, Means on the Bottom"
+    ) |>
+  #Found in r help section for gt
+  tab_style(
+    style = list(cell_borders(sides = "all",
+                              color = "black",
+                              style = "solid",
+                              weight = px(2)
+                              )
+                 ),
+    #I know we're not supposed to use list, but the list operator was the only one that allowed me to put both locations in without calling the entire border chunk again.
+    location = list(cells_column_labels(),
+                 cells_body()
+                 )
+    ) |>
+  tab_style(
+    style = list(
+      cell_fill(color = "grey"),
+      cell_text(weight = "bold",
+                font = "calibri")
+      ),
+    location = cells_column_labels()
+    ) |>
+  tab_style(
+    style = list(cell_fill(color = "steelblue"),
+                 cell_text(color = "White",
+                           font = "calibri")
+                 ),
+    location = cells_body()
+    )
 ```
 
 **DVS-6: I can create tables which make my summaries clear to the reader.**
 
 -   Example 1
--   Lab 3 Q8
+-   Lab 9 Q7
+-   Revisions: Changed Sum to Means on summary statement
+-   Changed title to include what each part of the table represents
+-   Changed colors to be more viewer friendly, added italics
+-   Added border to table
 
 ```{r}
 #| label: dvs-6-1
-instructor_data <- teacher_evals_clean |>
-  select(academic_degree,
-         seniority,
-         sex,
-         teacher_id) 
-instructor_summary<-instructor_data |>
-  summarize(
-    distinct_degrees=n_distinct(academic_degree),
-    distinct_seniority=n_distinct(seniority),
-    gender_distribution=n_distinct(sex),
-    male_count=n_distinct(teacher_id[sex=="male"]),
-    female_count=n_distinct(teacher_id[sex=="female"]),
-    total_instructors=n_distinct(teacher_id)) 
-print(instructor_summary)
+#| label: table-of-simulated Means
+all_simulations |>
+    group_by (n) |>
+    summarize(mean_simulated_mean = mean(simulated_means), 
+              .groups = "drop") |>
+  pivot_wider(names_from = n,
+              values_from = mean_simulated_mean) |>
+  gt() |>
+  tab_header(
+    title = "Simulated Means of Chi Sq Test",
+    subtitle = "Degrees of Freedom = 10, # of Samples on top, Means on the Bottom"
+    ) |>
+  #Found in r help section for gt
+  tab_style(
+    style = list(cell_borders(sides = "all",
+                              color = "black",
+                              style = "solid",
+                              weight = px(2)
+                              )
+                 ),
+    #I know we're not supposed to use list, but the list operator was the only one that allowed me to put both locations in without calling the entire border chunk again.
+    location = list(cells_column_labels(),
+                 cells_body()
+                 )
+    ) |>
+  tab_style(
+    style = list(
+      cell_fill(color = "grey"),
+      cell_text(weight = "bold",
+                font = "calibri")),
+    location = cells_column_labels()
+    ) |>
+  tab_style(
+    style = list(cell_fill(color = "steelblue"),
+                 cell_text(color = "White",
+                           font = "calibri")
+                 ),
+    location = cells_body()
+    )
 ```
 
 -   Example 2
--   Lab 3 Q6
+-   Lab 9 Q2
+-   Revisions:
+-   Now use ncorrect instead of just n
+-   Use complete function to get table to display all baby values
+-   Mutated our count to a proportion, and changed colors and title themes in gt
 
 ```{r}
 #| label: dvs-6-2
-unique_counts<- teacher_evals_clean |>
-  summarize (unique_teachers=n_distinct(teacher_id),
-             unique_courses=n_distinct(course_id),
-             .group="group")
-print(unique_counts)
+#| label: table-for-random-babies
+table <- results |>
+  enframe(name = "simulation_number", 
+          value = "ncorrect") |>
+  count(ncorrect) |>
+  #Found code for complete at first in r help, where it says it turns implicit missing values into explicit missing values. Found syntax there as well. 
+  complete(ncorrect = 0:4, 
+           fill = list(n = 0)
+           ) |>
+  mutate(prop = n / sum(n, 
+                        na.rm = TRUE)
+         ) |>
+  select(ncorrect, prop) |>  
+  pivot_wider(names_from = ncorrect, 
+              values_from = prop) 
+table |>
+  gt() |>
+  tab_header(
+    title = "Proportion of Correctly Returned Babies",
+    subtitle = "10000 Simulations"
+    ) |>
+  tab_style(
+    style = list(
+      cell_text(font = "calibri",
+                weight = "bold")),
+      location = cells_title()
+  ) |>
+  #Found table_style code through r help tab
+  tab_style(
+    style = list(
+      cell_fill(color = "grey3"),
+      cell_text(weight = "bold",
+                color = "white")
+      ),
+    location = cells_column_labels()
+    ) |>
+   tab_style(
+    style = list(
+      cell_fill(color = "grey"),
+      cell_text(color = "black")
+      ),
+    location = cells_body()
+    ) |>
+  tab_style(
+    style = list(cell_borders(sides = "all",
+                              color = "white",
+                              style = "solid",
+                              weight = px(2)
+                              )
+                 ),
+    #I know we're not supposed to use list, but the list operator was the only one that allowed me to put both locations in without calling the entire border chunk again.
+    location = list(cells_column_labels(),
+                 cells_body()
+                 )
+    )
 ```
 
 **DVS-7: I show creativity in my tables.**
 
 -   Example 1
--   Lab 3 Q8
+-   Lab 9 Q7
+-   Revisions: Changed Sum to Means on summary statement
+-   Changed title to include what each part of the table represents
+-   Changed colors to be more viewer friendly, added italics
+-   Added border to table
 
 ```{r}
 #| label: dvs-7-1
-instructor_data <- teacher_evals_clean |>
-  select(academic_degree,
-         seniority,
-         sex,
-         teacher_id) 
-instructor_summary<-instructor_data |>
-  summarize(
-    distinct_degrees=n_distinct(academic_degree),
-    distinct_seniority=n_distinct(seniority),
-    gender_distribution=n_distinct(sex),
-    male_count=n_distinct(teacher_id[sex=="male"]),
-    female_count=n_distinct(teacher_id[sex=="female"]),
-    total_instructors=n_distinct(teacher_id)) 
-print(instructor_summary)
+#| label: table-of-simulated Means
+all_simulations |>
+    group_by (n) |>
+    summarize(mean_simulated_mean = mean(simulated_means), 
+              .groups = "drop") |>
+  pivot_wider(names_from = n,
+              values_from = mean_simulated_mean) |>
+  gt() |>
+  tab_header(
+    title = "Simulated Means of Chi Sq Test",
+    subtitle = "Degrees of Freedom = 10, # of Samples on top, Means on the Bottom"
+    ) |>
+  #Found in r help section for gt
+  tab_style(
+    style = list(cell_borders(sides = "all",
+                              color = "black",
+                              style = "solid")
+                 ),
+    #I know we're not supposed to use list, but the list operator was the only one that allowed me to put both locations in without calling the entire border chunk again.
+    location = list(cells_column_labels(),
+                 cells_body()
+                 )
+    ) |>
+  tab_style(
+    style = list(
+      cell_fill(color = "grey"),
+      cell_text(weight = "bold",
+                font = "calibri")),
+    location = cells_column_labels()
+    ) |>
+  tab_style(
+    style = list(cell_fill(color = "steelblue"),
+                 cell_text(color = "White",
+                           font = "calibri")
+                 ),
+    location = cells_body()
+    )
 ```
 
 -   Example 2
--   Lab 3 Q6
+-   Lab 9 Q2
+-   Revisions:
+-   Now use ncorrect instead of just n
+-   Use complete function to get table to display all baby values
+-   Mutated our count to a proportion, and changed colors and title themes in gt
 
 ```{r}
 #| label: dvs-7-2
-unique_counts<- teacher_evals_clean |>
-  summarize (unique_teachers=n_distinct(teacher_id),
-             unique_courses=n_distinct(course_id),
-             .group="group")
-print(unique_counts)
+#| label: table-for-random-babies
+table <- results |>
+  enframe(name = "simulation_number", 
+          value = "ncorrect") |>
+  count(ncorrect) |>
+  #Found code for complete at first in r help, where it says it turns implicit missing values into explicit missing values. Found syntax there as well. 
+  complete(ncorrect = 0:4, 
+           fill = list(n = 0)
+           ) |>
+  mutate(prop = n / sum(n, 
+                        na.rm = TRUE)
+         ) |>
+  select(ncorrect, prop) |>  
+  pivot_wider(names_from = ncorrect, 
+              values_from = prop) 
+table |>
+  gt() |>
+  tab_header(
+    title = "Proportion of Correctly Returned Babies",
+    subtitle = "10000 Simulations"
+    ) |>
+  tab_style(
+    style = list(
+      cell_text(font = "calibri",
+                weight = "bold")),
+      location = cells_title()
+  ) |>
+  #Found table_style code through r help tab
+  tab_style(
+    style = list(
+      cell_fill(color = "grey3"),
+      cell_text(weight = "bold",
+                color = "white")
+      ),
+    location = cells_column_labels()
+    ) |>
+   tab_style(
+    style = list(
+      cell_fill(color = "grey"),
+      cell_text(color = "black")
+      ),
+    location = cells_body()
+    ) |>
+  tab_style(
+    style = list(cell_borders(sides = "all",
+                              color = "white",
+                              style = "solid",
+                              weight = px(2)
+                              )
+                 ),
+    #I know we're not supposed to use list, but the list operator was the only one that allowed me to put both locations in without calling the entire border chunk again.
+    location = list(cells_column_labels(),
+                 cells_body()
+                 )
+    )
 ```
 
 ## Program Efficiency
@@ -844,139 +1662,280 @@ print(unique_counts)
 **PE-1: I can write concise code which does not repeat itself.**
 
 -   using a single function call with multiple inputs (rather than multiple function calls)
+-   Lab 8 Q2
+-   Changed nested function to two lines
+-   Use \~ now and .x to make map more modern
 
 ```{r}
 #| label: pe-1-one-call
-
+#| label: map-to-mutate-columns
+evals <- evals |>
+  map_at(
+    .at = c("teacher_id", 
+          "weekday", 
+          "academic_degree", 
+          "seniority", 
+          "sex"),
+    .f = ~as.factor(.x)
+    ) |>
+  bind_cols()
 ```
 
 -   `across()`
--   Lab 3 Q5
+-   Lab 7 Q8
+-   Now use all_of in mutate
 
 ```{r}
 #| label: pe-1-across
-teacher_evals_clean<- teacher_eval |>
-  rename(sex=gender) |>
-  filter(no_participants>10) |>
-  mutate(across(c(teacher_id, question_no, course_id))) |>
-  select(course_id,
-         teacher_id,
-         question_no,
-         no_participants,
-         resp_share,
-         SET_score_avg,
-         percent_failed_cur,
-         academic_degree,
-         seniority,
-         sex)
+#| label: rescale-data-frame-function
+# Creating Function
+rescale_01 <- function(x) {
+  stopifnot(is.numeric(x), 
+            length(x) > 1
+            )
+  range_vals <- range(x, 
+                      na.rm=TRUE)
+  return(
+    (x - range_vals[1]) / (range_vals[2] - range_vals[1]
+                           )
+    )
+}
+#Function Checks
+rescale_column <- function(df, group_vars) {
+if (!is.data.frame(df)) {
+    stop("Please provide a data frame input for the df argument")
+}  
+if (!all(group_vars %in% colnames(df))) {
+    stop("The columns selected must be in our data frame")
+} 
+  df |>
+    #Found all of through online research, seems that all of is the most modern syntax for across, as it makes the code stronger against changes in variable names. Reference here: https://dplyr.tidyverse.org/reference/across.html
+  mutate(
+    across(all_of(group_vars), 
+           rescale_01, 
+           .names = "{.col}_scaled"
+           )
+    )
+}
 ```
 
 -   `map()` functions
--   Lab 4 Q7
+-   Lab 9 Q6
 
 ```{r}
 #| label: pe-1-map-1
-ggplot(ca_childcare,
-       mapping=(aes(x=mhi_2018,
-                    y=mc_infant)))+
-  geom_point()+
-  geom_smooth(method="lm")+
-  labs(x="Median Household Income (Expressed in 2018 Dollars",
-       y=NULL,
-       title="Scatterplot and linear regression line of median household income (expressed in 2018 dollars) compared to median weekly price for center-based childcare for infant in California (Y axis")
+all_simulations <- grid |> 
+  mutate(simulated_means = pmap(.l = list(n = n, 
+                                          df = df), 
+                                .f = simulate_means)
+         ) |> 
+  unnest(simulated_means) 
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
 
 -   Function that operates on vectors
--   Challenge 3 Q3
+-   Lab 9 Q1
 
 ```{r}
 #| label: pe-2-1
-chi_sq_result <-chisq.test(teacher_eval_compare$SET_level,
-                          teacher_eval_compare$sen_level)
-print(chi_sq_result)
+#| label: function-simulation-for-random-babies
+# Creating Function
+randomBabies <- function(n = 4) {
+  babies_data <- tibble(babies = 1:n,
+                        match = sample (1:n,
+                                        size = n,
+                                        replace = FALSE)
+                        )
+  matched_babies <- babies_data |>
+    filter(babies == match) |>
+    nrow()
+  
+  return(matched_babies)
+}
+#Using function in simulation
+results <- map_int(.x = 1:1000,
+                   .f = ~ randomBabies(n = 4)
+                   )
 ```
 
 -   Function that operates on data frames
--   Lab 3 Q3
+-   Lab 7 Q8
+-   Now use all_of in mutate
 
 ```{r}
 #| label: pe-2-2
-glimpse(teacher_eval)
+#| label: rescale-data-frame-function
+# Creating Function
+rescale_01 <- function(x) {
+  stopifnot(is.numeric(x), 
+            length(x) > 1
+            )
+  range_vals <- range(x, 
+                      na.rm=TRUE)
+  return(
+    (x - range_vals[1]) / (range_vals[2] - range_vals[1]
+                           )
+    )
+}
+#Function Checks
+rescale_column <- function(df, group_vars) {
+if (!is.data.frame(df)) {
+    stop("Please provide a data frame input for the df argument")
+}  
+if (!all(group_vars %in% colnames(df))) {
+    stop("The columns selected must be in our data frame")
+} 
+  df |>
+    #Found all of through online research, seems that all of is the most modern syntax for across, as it makes the code stronger against changes in variable names. Reference here: https://dplyr.tidyverse.org/reference/across.html
+  mutate(
+    across(all_of(group_vars), 
+           rescale_01, 
+           .names = "{.col}_scaled"
+           )
+    )
+}
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
 
 -   `across()`
+-   Lab 7 Q8
+-   Now use all_of in mutate
 
 ```{r}
 #| label: pe-3-across
-
+#| label: rescale-data-frame-function
+# Creating Function
+rescale_01 <- function(x) {
+  stopifnot(is.numeric(x), 
+            length(x) > 1
+            )
+  range_vals <- range(x, 
+                      na.rm=TRUE)
+  return(
+    (x - range_vals[1]) / (range_vals[2] - range_vals[1]
+                           )
+    )
+}
+# Using Function Checks
+rescale_column <- function(df, group_vars) {
+if (!is.data.frame(df)) {
+    stop("Please provide a data frame input for the df argument")
+}  
+if (!all(group_vars %in% colnames(df))) {
+    stop("The columns selected must be in our data frame")
+} 
+  df |>
+    #Found all of through online research, seems that all of is the most modern syntax for across, as it makes the code stronger against changes in variable names. Reference here: https://dplyr.tidyverse.org/reference/across.html
+  mutate(
+    across(all_of(group_vars), 
+           rescale_01, 
+           .names = "{.col}_scaled"
+           )
+    )
+}
 ```
 
 -   `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
+-   Lab 8 Q4
 
 ```{r}
 #| label: pe-3-map-1
-
+fish |>
+    map_int(.f = ~ sum(is.na(.x)
+                       )
+            ) |>
+  knitr::kable(caption = "Table of Missing Values for Each Column",
+               col.names = "Missing Values")
 ```
 
 -   `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
+-   Lab 9 Q6
 
 ```{r}
 #| label: pe-3-map-2
-
+all_simulations <- grid |> 
+  mutate(simulated_means = pmap(.l = list(n = n, 
+                                          df = df), 
+                                .f = simulate_means)
+         ) |> 
+  unnest(simulated_means) 
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
 
 -   I can use functions which are not superseded or deprecated
--   Lab 3 Q10
+-   Lab 5
+-   Revisions: Created intermediate object to save information of suspect, later used in a semi join.
+-   Renamed id to license id so that in our join we don't get an id.y column for license id's.
+-   Used join by instead of by = c(" .. ")
+-   Removed excess filter
 
 ```{r}
 #| label: pe-4-1
-  high_low <- teacher_evals_clean |>
-  select(teacher_id,
-         question_no,
-         course_id,
-         SET_score_avg) |>
-  filter(question_no==901)|>
-  group_by(teacher_id)|>
-  summarize(mean_id=mean(SET_score_avg, na.rm=TRUE))|>
-  arrange(mean_id)|>
-  slice(c(1,n()))
-  
-print(high_low)
+#| label: Final-Suspect
+# Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
+id_semi_join <- drivers_license |>
+  rename(license_id = id) |>
+  filter(license_id %in% c("173289", "423327")) |>
+filter(str_detect(plate_number,"H42W")) |>
+  inner_join(person, 
+             join_by(license_id))
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
--   Lab 4 Q6
+-   Lab 7 Q2
+-   Revisions:
+-   Changed both trips and years to factors
+-   Used fct_recode for trips to make the graph say Trip 1 and Trip 2
+-   Added percent symbols to the legend from the scales package
+-   Rotated and shrank size of x axis text
+-   Used position dodge on geom_text to fix issue where section was distributed weirdly
+-   Added midpoint color (at 0.125 so that it could be seen)
 
 ```{r}
 #| label: pe-4-2
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-ca_childcare_graph<-ca_childcare |>
-  pivot_longer(cols=c(mc_infant,mc_toddler,mc_preschool),
-               names_to="Age",
-               values_to="mcsa_long",
-               names_repair="unique") |>
-  filter(study_year >=2008 & study_year<=2018)
-ggplot(ca_childcare_graph,
-mapping=(aes(x=study_year,
-            y=mcsa_long,
-            color=region))) +
-  geom_jitter()+
-  facet_wrap(~Age)+
-  geom_smooth(method="loess") +
-  theme(axis.text.x=element_text(angle=45, hjust=1))+
-  labs(title="Weekly Median Price for Center-Based Childcare ($)",
-       x="Study Year",
-       y=NULL,
-       color="California Region")+
-  theme_minimal()
+#| label: visual-of-missing-values-over-time
+BlackfootFish |>
+  group_by(year, 
+           section, 
+           trip) |>
+  mutate(missing_values = sum(if_any(everything(),
+                                     is.na)
+                              ),
+         total=n(),
+         percent_missing_values = (missing_values/total),
+         trip = as.factor(trip),
+         trip = fct_recode(trip,
+                           "Trip 1" = "1",
+                           "Trip 2" = "2"),
+         year = as.factor(year)
+         ) |>
+ggplot(BlackfootFish,
+       mapping = aes(x = year, 
+                   y = section,
+                   fill = percent_missing_values)
+       ) +
+  # While this may seem unnecessary, setting us a width of 0 gives a plot where values on the x axis are separated as opposed to being smushed together, while also making sure that the section values don't misalign.
+  geom_tile(position = position_dodge(width = 0)) +
+  facet_wrap(~ trip) +
+  #Found this in the r help section, fill refers to the percent of missing values. 
+  scale_fill_gradient2(low = "skyblue", 
+                       mid = "blue",
+                       high = "midnightblue",
+                       midpoint = 0.125,
+                       name = "Percent Missing (0 - 100)",
+                       #Found on label package info on r help tab
+                       labels = label_percent()
+                       ) +
+  labs(x = "Year",
+       y = NULL,
+       title = "Heatmap of missing values vs years, sections (y axis), and trips") +
+  theme_dark() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   size = 6)
+        ) 
 ```
 
 ## Data Simulation & Statisical Models
@@ -984,16 +1943,50 @@ mapping=(aes(x=study_year,
 **DSSM-1: I can simulate data from a *variety* of probability models.**
 
 -   Example 1
+-   Lab 9 Q1
 
 ```{r}
 #| label: dsm-1-1
-
+#| label: function-simulation-for-random-babies
+# Creating function
+randomBabies <- function(n = 4) {
+  babies_data <- tibble(babies = 1:n,
+                        match = sample (1:n,
+                                        size = n,
+                                        replace = FALSE)
+                        )
+  matched_babies <- babies_data |>
+    filter(babies == match) |>
+    nrow()
+  
+  return(matched_babies)
+}
+#Using function in simulation
+results <- map_int(.x = 1:1000,
+                   .f = ~ randomBabies(n = 4)
+                   )
 ```
 
 -   Example 2
+-   Lab 9 Q4 and Q6
+-   I wasn't sure which one to use here, Q4 is a better example, but used skeleton code given, while Q6 is a worse example, but doesn't have any skeleton code, so just included both.
 
 ```{r}
 #| label: dsm-1-2
+simulate_means <- function(n, df){
+  map_dbl(.x = 1:n, 
+          .f = ~rchisq(n = 100, df) %>% mean()
+          )
+}
+```
+
+```{r}
+all_simulations <- grid |> 
+  mutate(simulated_means = pmap(.l = list(n = n, 
+                                          df = df), 
+                                .f = simulate_means)
+         ) |> 
+  unnest(simulated_means) 
 
 ```
 
@@ -1016,8 +2009,8 @@ t_test_result
 
 ```{r}
 #| label: dsm-2-2
-chi_sq_result <-chisq.test(teacher_eval_compare$SET_level,
-                          teacher_eval_compare$sen_level)
+chi_sq_result <- chisq.test(teacher_eval_compare$SET_level,
+                            teacher_eval_compare$sen_level)
 print(chi_sq_result)
 ```
 
@@ -1029,10 +2022,9 @@ Throughout the course, I've revised every lab and challenge I've received growin
 
 Examples of revisions:
 
-+-----------------------------------+------------------------------------------------------------------------------+
 | **Q3: Description of data Lab 3** | What university are these evals from? What year(s) were the evals collected? |
-+===================================+==============================================================================+
-+-----------------------------------+------------------------------------------------------------------------------+
+|--------------------------|----------------------------------------------|
+|                                   |                                                                              |
 
 Revision: **Each chunk of data is separated by class ID, with Class Ids having a certain number of rows for for the amount of questions asked. The students are also classified by age, gender, the percent that failed, and more. Each row is a question asked to a group of students, and their averages. We have roughly 250 participants for each survey (with some outliers). Surveys appear to have been taken on Friday.**
 
@@ -1042,10 +2034,9 @@ Example 2:
 
 Feedback:
 
-+---------------------------------+------------------------------------------------------------------------------------------------------------------------+
 | **Q8: Instructor demographics** | Careful! You just found that there are 294 distinct teachers included in these data. So why are your counts over 2000? |
-+=================================+========================================================================================================================+
-+---------------------------------+------------------------------------------------------------------------------------------------------------------------+
+|-------------------------|------------------------------------------------|
+|                                 |                                                                                                                        |
 
 Revisions: **There are 3464 male teachers, and 3199 female teachers. 4 distinct degrees, and 11 distinct seniorities. There are 6663 total instructors.**
 
@@ -1076,7 +2067,7 @@ print(instructor_summary)
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
-When it comes to extending my thinking, I've tried to include code from previous assignments on the next. This can be seen in examples above such as mutate(across), using the here function to read in data, and n_distinct for averages of unique counts. However I believe I've earned a **B+** grade here, as while I've extended my thinking more than what is required, I believe I should complete harder level challenges before getting to an A.
+When it comes to extending my thinking, I've tried to include code from previous assignments on the next. This can be seen in examples above such as mutate(across), using the here function to read in data, and n_distinct for averages of unique counts. I've also extended my thinking through trying challenging and sometimes optional problems, such as the chi-sq example on lab 9, and going back to use the most modern syntax on my map functions. I've been fairly extensive in trying to make my code as efficient and tidy as possible, and have constantly gone through the r help section to find different references and functions I can use to make my coding stronger.
 
 ## Peer Support & Collaboration
 
@@ -1141,8 +2132,12 @@ ggplot(ca_childcare_long, aes(x = study_year, y = median_price, color = region))
 
 Lab 4, Ian Alexander Cay
 
-Your code looks really good, you were very good about both tidy and efficient code. The only changes I would make are on question 3, placing each county on a seperate line would make it easier for the reader to read, and on question 6, changing the x axis, as right now, the labels are jumbled together, and are placed in increments of 0.5, which doesn't make sense for year. I would suggest mutating years to a character variable, as this would solve the problem.
+Your code looks really good, you were very good about both tidy and efficient code. The only changes I would make are on question 3, placing each county on a separate line would make it easier for the reader to read, and on question 6, changing the x axis, as right now, the labels are jumbled together, and are placed in increments of 0.5, which doesn't make sense for year. I would suggest mutating years to a character variable, as this would solve the problem.
 
 Lab 3, Noor Belal Karaki
 
 Your code looks great, all code seems to work and your outputs look right. Some changes I would make are to use \|\> instead of %\>%, as I'm not sure how that works. Additionally, using an enter to get to the next space should be used after commas, and not for every line so we can distinguish where you are making separate arguments. Otherwise your code looks great!
+
+Lab 8, Tillman Erb
+
+Nice code overall, everything is tidy, and all of your references allow me to see where you're getting your external code from. Some changes I would make are in question 1 to use a tibble to get your table to be nicely formatted, and using the function argument in map_chr to specify that you want the type of variable to be saved. In question 2, you don't need to call evals at the end, as the question only asks for a variable change. In question 4, personally, I would use some comments as it is hard for me to understand what your code is doing. Other than that, great job overall!

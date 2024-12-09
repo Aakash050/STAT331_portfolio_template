@@ -6,16 +6,22 @@ editor: visual
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  Finish the sentence with another student’s name: "If \[Name of Student\] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
 
+    Eva Molyon. During our last few posit cloud activities, Eva was my partner. I believe she is passionate about r and data science, worked really hard, and we made a great team. There were no shortcuts, and overall I think I learned the most when working with her. She also spends a lot of time answering questions in the discord, helping other students.
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+2.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
 
+    The most difficult part of the class for me was understanding the syntax for R - Studio. Using pipelines, and actions like across and mutate is very unfamiliar for my background, as this was the first real coding class I'd taken in a while.
 
-3. What was the easiest part of the class for you? Explain why.
+3.  What was the easiest part of the class for you? Explain why.
 
+    Getting used to the logic, most programming languages are fairly intuitive in terms of how one action proceeds to the next, and I feel R is the same.
 
-4. What part of the class surprised or interested you the most? Explain why.
+4.  What part of the class surprised or interested you the most? Explain why.
 
+    Learning how to create and why and where intermediate objects should and shouldn't be used was incredibly interesting, as I learned how powerful they can be (pivot_wider, tables, graphs, etc), and how inefficient they can be sometimes (using them instead of directly piping).
 
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+5.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+
+    Don't hesitate to ask questions, and use what you learn from one lab to the next.
