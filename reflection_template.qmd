@@ -117,7 +117,6 @@ teacher_evals_clean<- teacher_eval |>
 
 ```{r}
 #| label: wd-3-string
-#| label: Final-Suspect
 # Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
 id_semi_join <- drivers_license |>
   rename(license_id = id) |>
@@ -135,7 +134,6 @@ id_semi_join <- drivers_license |>
 
 ```{r}
 #| label: wd-3-factor
-#| label: JB_Employer
 # Using Jeremy Bowers interview to find out who hired him
 drivers_license |>
   rename(license_id = id) |>
@@ -167,7 +165,6 @@ drivers_license |>
 
 ```{r}
 #| label: wd-3-date
-#| label: Gym-Filter
 #Now that we have the info from our witnesses: 1: I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. 2: The man got into a car with a plate that included "H42W". 2: I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.
 
 #We now filter through our gym data set to see membership numbers that start with 48Z, that are gold, and that checked in on January 9th. From their, we find his car. 
@@ -214,7 +211,6 @@ teacher_eval_compare <- teacher_eval |>
 
 ```{r}
 #| label: wd-4-string
-#| label: Gym-Filter
 #Now that we have the info from our witnesses: 1: I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. 2: The man got into a car with a plate that included "H42W". 2: I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.
 
 #We now filter through our gym data set to see membership numbers that start with 48Z, that are gold, and that checked in on January 9th. From their, we find his car. 
@@ -237,7 +233,6 @@ get_fit_now_check_in |>
 
 ```{r}
 #| label: wd-4-factor
-#| label: recoding-county-to-census-regions
 ca_childcare <- ca_childcare |> 
   mutate(county_name = str_remove(county_name, " County"),
          region=fct_collapse(county_name,
@@ -296,7 +291,6 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: wd-4-date
-#| label: JB_Employer
 # Using Jeremy Bowers interview to find out who hired him
 drivers_license |>
   rename(license_id = id) |>
@@ -331,7 +325,6 @@ drivers_license |>
 
 ```{r}
 #| label: wd-5-left
-#| label: JB_Employer
 # Using Jeremy Bowers interview to find out who hired him
 drivers_license |>
   rename(license_id = id) |>
@@ -363,7 +356,6 @@ drivers_license |>
 
 ```{r}
 #| label: wd-5-right
-#| label: JB_Employer
 # Using Jeremy Bowers interview to find out who hired him
 drivers_license |>
   rename(license_id = id) |>
@@ -396,7 +388,6 @@ drivers_license |>
 
 ```{r}
 #| label: wd-5-inner
-#| label: Final-Suspect
 # Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
 id_semi_join <- drivers_license |>
   rename(license_id = id) |>
@@ -421,7 +412,6 @@ filter(str_detect(plate_number,"H42W")) |>
 
 ```{r}
 #| label: wd-6-semi
-#| label: Interview_Final
 # Finding Jeremy Bower's interview 
 interview |>
   semi_join(id_semi_join,
@@ -460,7 +450,6 @@ interview |>
 
 ```{r}
 #| label: wd-7-long
-#| label: recreate-plot
 ca_childcare |>
   pivot_longer(cols = c(mc_infant,
                         mc_toddler,
@@ -520,7 +509,6 @@ ggplot(mapping = (aes(x = study_year,
 
 ```{r}
 #| label: wd-7-wide
-#| label: table-of-simulated Means
 all_simulations |>
     group_by (n) |>
     summarize(mean_simulated_mean = mean(simulated_means), 
@@ -579,7 +567,6 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: r-2-1
-#| label: recreate-plot
 ca_childcare |>
   pivot_longer(cols = c(mc_infant,
                         mc_toddler,
@@ -639,7 +626,6 @@ ggplot(mapping = (aes(x = study_year,
 
 ```{r}
 #| label: r-2-2
-#| label: table-of-simulated Means
 all_simulations |>
     group_by (n) |>
     summarize(mean_simulated_mean = mean(simulated_means), 
@@ -682,7 +668,6 @@ all_simulations |>
 
 ```{r}
 #| label: r-2-3
-#| label: function-simulation-for-random-babies
 # Creating Function
 randomBabies <- function(n = 4) {
   babies_data <- tibble(babies = 1:n,
@@ -710,7 +695,6 @@ results <- map_int(.x = 1:1000,
 
 ```{r}
 #| label: r-3-example
-#| label: one-year-experience-failing-students
 # code chunk for Q11
 failing_oneyear <- teacher_evals_clean |>
   select(teacher_id,
@@ -735,7 +719,6 @@ print(failing_oneyear_min)
 
 ```{r}
 #| label: r-3-function-stops
-#| label: rescale-data-frame-function
 # Creating function
 rescale_01 <- function(x) {
   stopifnot(is.numeric(x), 
@@ -779,7 +762,6 @@ if (!all(group_vars %in% colnames(df))) {
 
 ```{r}
 #| label: dvs-1-num
-#| label: scatterplot-median-income-vs-childcare-cost
 ggplot(ca_childcare,
        mapping = (aes(x = mhi_2018,
                       y = mc_infant)
@@ -815,7 +797,6 @@ theme(plot.title = element_text(hjust = 0.5, size = 8,),
 
 ```{r}
 #| label: dvs-2-num-cat
-#| label: visual-of-missing-values-over-time
 BlackfootFish |>
   group_by(year, 
            section, 
@@ -866,7 +847,6 @@ ggplot(BlackfootFish,
 
 ```{r}
 #| label: dvs-2-cat
-#| label: recreate-plot
 # code chunk for Q13
 #Inspiration came from plot shown on slides for week 7 exemplary plots, the annotate_text helped to learn how to use geom_text
 annotate_text <- teacher_eval_compare |>
@@ -914,7 +894,6 @@ ggplot(data = teacher_eval_compare,
 
 ```{r}
 #| label: dvs-2-date
-#| label: recreate-plot
 ca_childcare |>
   pivot_longer(cols = c(mc_infant,
                         mc_toddler,
@@ -979,7 +958,6 @@ ggplot(mapping = (aes(x = study_year,
 
 ```{r}
 #| label: dvs-2-1
-#| label: visual-of-missing-values-over-time
 BlackfootFish |>
   group_by(year, 
            section, 
@@ -1035,7 +1013,6 @@ ggplot(BlackfootFish,
 
 ```{r}
 #| label: dvs-2-2
-#| label: recreate-plot
 ca_childcare |>
   pivot_longer(cols = c(mc_infant,
                         mc_toddler,
@@ -1098,7 +1075,6 @@ ggplot(mapping = (aes(x = study_year,
 
 ```{r}
 #| label: dvs-2-3
-#| label: recreate-plot
 ca_childcare_graph <- ca_childcare |>
   pivot_longer(cols = c(mc_infant,
                         mc_toddler,
@@ -1165,7 +1141,6 @@ ggplot(ca_childcare_graph,
 
 ```{r}
 #| label: dvs-3-1
-#| label: visual-of-missing-values-over-time
 BlackfootFish |>
   group_by(year, 
            section, 
@@ -1216,7 +1191,6 @@ ggplot(BlackfootFish,
 
 ```{r}
 #| label: dvs-3-2
-#| label: recreate-plot
 # code chunk for Q13
 #Inspiration came from plot shown on slides for week 7 exemplary plots, the annotate_text helped to learn how to use geom_text
 annotate_text <- teacher_eval_compare |>
@@ -1263,7 +1237,6 @@ ggplot(data = teacher_eval_compare,
 
 ```{r}
 #| label: dvs-3-3
-#| label: visual-of-missing-values-over-time
 BlackfootFish |>
   group_by(year, 
            section, 
@@ -1314,7 +1287,6 @@ ggplot(BlackfootFish,
 
 ```{r}
 #| label: dvs-4-summarize
-#| label: unique-courses
 # code chunk for Q6
 teacher_evals_clean |>
   summarize(unique_teachers = n_distinct(teacher_id),
@@ -1330,7 +1302,6 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-4-across
-#| label: find-missing-values
 # Found sum(is.na) through the textbook, where this counts how many times NA values appear in rows. 
 missing_table <- BlackfootFish |> 
   summarise(across(everything(), 
@@ -1353,7 +1324,6 @@ missing_table |>
 
 ```{r}
 #| label: dvs-5-1
-#| label: one-year-experience-failing-students
 # code chunk for Q11
 failing_oneyear <- teacher_evals_clean |>
   select(teacher_id,
@@ -1381,7 +1351,6 @@ print(failing_oneyear_min)
 
 ```{r}
 #| label: dvs-5-2
-#| label: table-of-simulated Means
 all_simulations |>
     group_by (n) |>
     summarize(mean_simulated_mean = mean(simulated_means), 
@@ -1434,7 +1403,6 @@ all_simulations |>
 
 ```{r}
 #| label: dvs-6-1
-#| label: table-of-simulated Means
 all_simulations |>
     group_by (n) |>
     summarize(mean_simulated_mean = mean(simulated_means), 
@@ -1484,7 +1452,6 @@ all_simulations |>
 
 ```{r}
 #| label: dvs-6-2
-#| label: table-for-random-babies
 table <- results |>
   enframe(name = "simulation_number", 
           value = "ncorrect") |>
@@ -1552,7 +1519,6 @@ table |>
 
 ```{r}
 #| label: dvs-7-1
-#| label: table-of-simulated Means
 all_simulations |>
     group_by (n) |>
     summarize(mean_simulated_mean = mean(simulated_means), 
@@ -1600,7 +1566,6 @@ all_simulations |>
 
 ```{r}
 #| label: dvs-7-2
-#| label: table-for-random-babies
 table <- results |>
   enframe(name = "simulation_number", 
           value = "ncorrect") |>
@@ -1668,7 +1633,6 @@ table |>
 
 ```{r}
 #| label: pe-1-one-call
-#| label: map-to-mutate-columns
 evals <- evals |>
   map_at(
     .at = c("teacher_id", 
@@ -1687,7 +1651,6 @@ evals <- evals |>
 
 ```{r}
 #| label: pe-1-across
-#| label: rescale-data-frame-function
 # Creating Function
 rescale_01 <- function(x) {
   stopifnot(is.numeric(x), 
@@ -1739,7 +1702,6 @@ all_simulations <- grid |>
 
 ```{r}
 #| label: pe-2-1
-#| label: function-simulation-for-random-babies
 # Creating Function
 randomBabies <- function(n = 4) {
   babies_data <- tibble(babies = 1:n,
@@ -1765,7 +1727,6 @@ results <- map_int(.x = 1:1000,
 
 ```{r}
 #| label: pe-2-2
-#| label: rescale-data-frame-function
 # Creating Function
 rescale_01 <- function(x) {
   stopifnot(is.numeric(x), 
@@ -1805,7 +1766,6 @@ if (!all(group_vars %in% colnames(df))) {
 
 ```{r}
 #| label: pe-3-across
-#| label: rescale-data-frame-function
 # Creating Function
 rescale_01 <- function(x) {
   stopifnot(is.numeric(x), 
@@ -1874,7 +1834,6 @@ all_simulations <- grid |>
 
 ```{r}
 #| label: pe-4-1
-#| label: Final-Suspect
 # Now that we know the SSN of the suspects, we filter our drivers_license database by these, and the license plate H42W, which will get us our final outcome. 
 id_semi_join <- drivers_license |>
   rename(license_id = id) |>
@@ -1896,7 +1855,6 @@ filter(str_detect(plate_number,"H42W")) |>
 
 ```{r}
 #| label: pe-4-2
-#| label: visual-of-missing-values-over-time
 BlackfootFish |>
   group_by(year, 
            section, 
@@ -1947,7 +1905,6 @@ ggplot(BlackfootFish,
 
 ```{r}
 #| label: dsm-1-1
-#| label: function-simulation-for-random-babies
 # Creating function
 randomBabies <- function(n = 4) {
   babies_data <- tibble(babies = 1:n,
