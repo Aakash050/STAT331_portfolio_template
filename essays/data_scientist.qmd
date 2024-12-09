@@ -2,6 +2,9 @@
 title: "My Growth as a Data Scientist"
 format: html
 editor: visual
+execute: 
+  eval: false
+  echo: true
 ---
 
 ***Describe how you have improved as a practitioner and student of data science this quarter through your work in the course.***

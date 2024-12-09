@@ -2,6 +2,9 @@
 title: "The Power of Efficiency"
 format: html
 editor: visual
+execute: 
+  eval: false
+  echo: true
 ---
 
 As we’ve said in the class efficiency is a pivotal component of statistical computing (and data science). In this essay, give an explanation of what that term “efficiency” means in relation to statistical computing and describe some places where you encountered efficiency and understood its importance. Your essay should address the following questions:
